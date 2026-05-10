@@ -19,7 +19,7 @@ const customerSchema = z.object({
 type CustomerForm = z.infer<typeof customerSchema>;
 
 export function CartDrawer() {
-  const { items, isDrawerOpen, closeDrawer, remove, setQuantity, subtotal, itemCount } = useCart();
+  const { items, isDrawerOpen, closeDrawer, remove, setQuantity, clear, subtotal, itemCount } = useCart();
   const hydrated = useCartHydrated();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -104,13 +104,24 @@ export function CartDrawer() {
                   </span>
                 )}
               </div>
-              <button
-                onClick={closeDrawer}
-                aria-label="Cerrar carrito"
-                className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F3F5] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                {hydrated && items.length > 0 && (
+                  <button
+                    onClick={clear}
+                    aria-label="Vaciar carrito"
+                    className="px-2.5 py-1.5 rounded-lg text-xs text-[#6B7280] hover:text-[#EF4444] hover:bg-red-50 transition-colors"
+                  >
+                    Borrar todo
+                  </button>
+                )}
+                <button
+                  onClick={closeDrawer}
+                  aria-label="Cerrar carrito"
+                  className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F3F5] transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Body */}
