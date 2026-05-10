@@ -7,7 +7,7 @@ import { ProductModal } from "./ProductModal";
 import { Pagination } from "@/components/common/Pagination";
 import type { Product } from "@/types/product";
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 40;
 
 type Props = {
   products: Product[];

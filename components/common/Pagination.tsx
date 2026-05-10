@@ -90,14 +90,13 @@ function PageBtn({
 }
 
 function buildPageList(current: number, total: number): (number | "...")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const groupSize = 10;
+  const groupStart = Math.floor((current - 1) / groupSize) * groupSize + 1;
+  const groupEnd = Math.min(groupStart + groupSize - 1, total);
 
-  const pages: (number | "...")[] = [1];
-  if (current > 3) pages.push("...");
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-  for (let i = start; i <= end; i++) pages.push(i);
-  if (current < total - 2) pages.push("...");
-  pages.push(total);
+  const pages: (number | "...")[] = [];
+  if (groupStart > 1) pages.push("...");
+  for (let i = groupStart; i <= groupEnd; i++) pages.push(i);
+  if (groupEnd < total) pages.push("...");
   return pages;
 }

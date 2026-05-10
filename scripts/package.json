@@ -1,0 +1,16 @@
+{
+  "name": "grasser-image-downloader",
+  "version": "1.0.0",
+  "description": "Descarga y procesa imágenes de productos eléctricos desde un Excel",
+  "main": "download-images.js",
+  "scripts": {
+    "start": "node download-images.js",
+    "download": "node download-images.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "fs-extra": "^11.2.0",
+    "sharp": "^0.33.4",
+    "xlsx": "^0.18.5"
+  }
+}

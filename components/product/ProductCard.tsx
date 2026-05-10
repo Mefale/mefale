@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ type Props = {
 
 export function ProductCard({ product, index = 0, onSelect }: Props) {
   const mainImage = product.imagenes[0];
+  const [imgError, setImgError] = useState(false);
 
   return (
     <motion.div
@@ -37,18 +38,15 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
       >
         {/* Image */}
         <div className="relative aspect-[4/3] bg-[#F1F3F5] overflow-hidden">
-          {mainImage ? (
+          {mainImage && !imgError && (
             <Image
               src={mainImage}
               alt={product.nombre}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 15vw"
               className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+              onError={() => setImgError(true)}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#6B7280]">
-              <ShoppingCart className="w-8 h-8 opacity-30" />
-            </div>
           )}
           {product.destacado && (
             <div className="absolute top-2 left-2">
