@@ -48,7 +48,7 @@ export function ProductCatalog({ products }: Props) {
           value={query}
           onChange={(e) => handleQuery(e.target.value)}
           placeholder="Buscar por nombre o código..."
-          className="w-full bg-white border border-[#1A56DB]/40 shadow-sm rounded-lg pl-9 pr-9 py-2 text-sm text-[#111827] placeholder:text-[#6B7280] focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10 transition-colors"
+          className="w-full bg-white border border-[#D1D5DB] shadow-sm rounded-lg pl-9 pr-9 py-2 text-sm text-[#111827] placeholder:text-[#6B7280] focus:outline-none focus:border-[#111827] focus:ring-2 focus:ring-black/5 transition-colors"
         />
         {query && (
           <button

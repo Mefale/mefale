@@ -52,7 +52,7 @@ export function ProductModal({ product, onClose }: Props) {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className="relative w-full max-w-2xl rounded-2xl bg-[#F8F9FA] border border-[#D1D5DB]/60 shadow-2xl overflow-hidden pointer-events-auto"
+              className="relative w-full max-w-xs rounded-2xl bg-[#F8F9FA] border border-[#D1D5DB]/60 shadow-2xl overflow-hidden pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close */}
@@ -64,7 +64,7 @@ export function ProductModal({ product, onClose }: Props) {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Image only */}
+              {/* Image */}
               <div className="relative w-full aspect-square bg-[#F1F3F5]">
                 {product.imagenes[0] ? (
                   <Image
@@ -79,6 +79,19 @@ export function ProductModal({ product, onClose }: Props) {
                     <ShoppingCart className="w-16 h-16 text-[#A1A1AA] opacity-20" />
                   </div>
                 )}
+              </div>
+
+              {/* Info */}
+              <div className="px-4 py-3 flex flex-col gap-1">
+                <p className="text-[10px] text-[#6B7280] font-mono uppercase tracking-wider">
+                  {product.sku}
+                </p>
+                <h2 className="text-sm font-semibold text-[#111827] leading-snug">
+                  {product.nombre}
+                </h2>
+                <span className="text-base font-bold text-[#1A56DB] tabular-nums mt-1">
+                  {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(product.precio)}
+                </span>
               </div>
             </div>
           </motion.div>

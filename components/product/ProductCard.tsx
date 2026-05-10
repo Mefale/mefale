@@ -30,13 +30,13 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
         onClick={() => onSelect?.(product)}
         onKeyDown={(e) => e.key === "Enter" && onSelect?.(product)}
         className={cn(
-          "group flex flex-col rounded-xl border border-[#1A56DB]/40 bg-white shadow-sm overflow-hidden cursor-pointer",
-          "hover:border-[#1A56DB] hover:shadow-md hover:shadow-[#1A56DB]/10",
+          "group flex flex-col rounded-xl border border-[#D1D5DB] bg-white shadow-sm overflow-hidden cursor-pointer",
+          "hover:border-[#111827] hover:shadow-md hover:shadow-black/10",
           "transition-all duration-300"
         )}
       >
         {/* Image */}
-        <div className="relative aspect-square bg-[#F1F3F5] overflow-hidden">
+        <div className="relative aspect-[4/3] bg-[#F1F3F5] overflow-hidden">
           {mainImage ? (
             <Image
               src={mainImage}
@@ -65,21 +65,21 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-col gap-1.5 p-3">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-[10px] text-[#6B7280] font-mono uppercase tracking-wider">
+            <span className="text-[9px] text-[#6B7280] font-mono uppercase tracking-wider">
               {product.sku}
             </span>
-            <h3 className="text-sm font-medium text-[#111827] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
+            <h3 className="text-xs font-medium text-[#111827] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
               {product.nombre}
             </h3>
           </div>
 
-          <div className="flex items-center justify-between mt-auto pt-1">
-            <span className="text-lg font-semibold text-[#111827] tabular-nums">
+          <div className="flex items-center justify-between mt-auto pt-0.5">
+            <span className="text-sm font-semibold text-[#111827] tabular-nums">
               {formatPrice(product.precio)}
             </span>
-            <span className="text-xs text-[#6B7280]">{product.marca}</span>
+            <span className="text-[10px] text-[#6B7280]">{product.marca}</span>
           </div>
 
           <AddToCartButton product={product} />

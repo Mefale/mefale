@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Trash2, MessageCircle, ShoppingCart, ChevronDown } from "lucide-react";
+import { X, Minus, Plus, Trash2, MessageCircle, ShoppingCart } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,7 +21,6 @@ type CustomerForm = z.infer<typeof customerSchema>;
 export function CartDrawer() {
   const { items, isDrawerOpen, closeDrawer, remove, setQuantity, clear, subtotal, itemCount } = useCart();
   const hydrated = useCartHydrated();
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const { register, getValues } = useForm<CustomerForm>({
@@ -214,42 +213,17 @@ export function CartDrawer() {
                 </div>
 
                 {/* Datos opcionales */}
-                <div className="rounded-lg border border-[#D1D5DB]/60 overflow-hidden">
-                  <button
-                    onClick={() => setShowCustomerForm((v) => !v)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 text-xs text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F3F5] transition-colors"
-                  >
-                    <span>Agregar mis datos (opcional)</span>
-                    <ChevronDown
-                      className={cn(
-                        "w-3.5 h-3.5 transition-transform duration-200",
-                        showCustomerForm && "rotate-180"
-                      )}
-                    />
-                  </button>
-
-                  <AnimatePresence>
-                    {showCustomerForm && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-3 pb-3 pt-1 flex flex-col gap-2 border-t border-[#D1D5DB]/60">
-                          <input
-                            {...register("nombre")}
-                            placeholder="Nombre"
-                            className="w-full bg-[#F1F3F5] border border-[#D1D5DB]/60 rounded-lg px-3 py-2 text-sm text-[#111827] placeholder:text-[#6B7280]/60 focus:outline-none focus:border-[#1A56DB]/60 transition-colors"
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <input
+                  {...register("nombre")}
+                  placeholder="Tu nombre (opcional)"
+                  className="w-full bg-white border border-[#D1D5DB] rounded-lg px-3 py-2 text-sm text-[#111827] placeholder:text-[#6B7280] focus:outline-none focus:border-[#111827] transition-colors"
+                />
 
                 {/* WhatsApp CTA */}
+                <div className="rounded-lg bg-[#F1F5F9] border border-[#D1D5DB] px-3 py-2.5 text-xs text-[#6B7280] text-center leading-relaxed">
+                  Para iniciar la compra enviá tu pedido por WhatsApp. Un vendedor te confirma precio y disponibilidad.
+                </div>
+
                 <button
                   onClick={handleWhatsApp}
                   className={cn(
@@ -261,12 +235,8 @@ export function CartDrawer() {
                   )}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Consultar por WhatsApp
+                  Enviar pedido por WhatsApp
                 </button>
-
-                <p className="text-center text-[10px] text-[#6B7280]/70">
-                  El precio final lo confirma el vendedor por WhatsApp.
-                </p>
               </div>
             )}
           </motion.div>

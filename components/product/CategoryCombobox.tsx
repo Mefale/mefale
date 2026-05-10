@@ -69,8 +69,8 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
         className={cn(
           "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
           open
-            ? "border-[#1A56DB] bg-white text-[#111827] shadow-sm ring-2 ring-[#1A56DB]/10"
-            : "border-[#1A56DB]/40 bg-white text-[#6B7280] shadow-sm hover:text-[#111827] hover:border-[#1A56DB]/40"
+            ? "border-[#111827] bg-white text-[#111827] shadow-sm ring-2 ring-black/5"
+            : "border-[#D1D5DB] bg-white text-[#6B7280] shadow-sm hover:text-[#111827] hover:border-[#111827]"
         )}
       >
         <span className={cn("truncate", selected ? "text-[#111827]" : "")}>

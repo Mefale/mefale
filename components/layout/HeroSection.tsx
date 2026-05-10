@@ -122,7 +122,7 @@ export function HeroSection() {
               {brands.map((brand) => (
                 <div
                   key={brand.nombre}
-                  className="relative h-8 w-24 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  className="relative h-8 w-24"
                 >
                   <Image
                     src={brand.logo}
