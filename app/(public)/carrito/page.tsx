@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 
 const customerSchema = z.object({
   nombre: z.string().optional(),
-  telefono: z.string().optional(),
 });
 type CustomerForm = z.infer<typeof customerSchema>;
 
@@ -26,8 +25,8 @@ export default function CarritoPage() {
   });
 
   function handleWhatsApp() {
-    const { nombre, telefono } = getValues();
-    const message = buildWhatsAppMessage(items, { nombre, telefono });
+    const { nombre } = getValues();
+    const message = buildWhatsAppMessage(items, { nombre });
     window.open(buildWhatsAppUrl(message), "_blank", "noopener,noreferrer");
   }
 
@@ -172,12 +171,6 @@ export default function CarritoPage() {
                 <input
                   {...register("nombre")}
                   placeholder="Tu nombre"
-                  className="w-full bg-[#F1F3F5] border border-[#D1D5DB]/60 rounded-lg px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#6B7280]/60 focus:outline-none focus:border-[#1A56DB]/60 transition-colors"
-                />
-                <input
-                  {...register("telefono")}
-                  placeholder="Tu teléfono"
-                  type="tel"
                   className="w-full bg-[#F1F3F5] border border-[#D1D5DB]/60 rounded-lg px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#6B7280]/60 focus:outline-none focus:border-[#1A56DB]/60 transition-colors"
                 />
               </div>
