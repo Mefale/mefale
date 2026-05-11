@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
 
 const brands = [
-  { nombre: "Argenplas", logo: "/marcas/argenplas.png" },
-  { nombre: "Jeluz",     logo: "/marcas/jeluz.png" },
-  { nombre: "Kalop",     logo: "/marcas/kalop.png" },
-  { nombre: "Re-Flex",   logo: "/marcas/re-flex.png" },
-  { nombre: "Sica",      logo: "/marcas/sica.png" },
-  { nombre: "Dayton",    logo: "/marcas/dayton.png" },
+  { name: "Argenplas", logo: "/marcas/argenplas.png" },
+  { name: "Jeluz",     logo: "/marcas/jeluz.png" },
+  { name: "Kalop",     logo: "/marcas/kalop.png" },
+  { name: "Re-Flex",   logo: "/marcas/re-flex.png" },
+  { name: "Sica",      logo: "/marcas/sica.png" },
+  { name: "Dayton",    logo: "/marcas/dayton.png" },
 ];
 
 const features = [
@@ -121,12 +121,12 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center gap-6">
               {brands.map((brand) => (
                 <div
-                  key={brand.nombre}
+                  key={brand.name}
                   className="relative h-8 w-24"
                 >
                   <Image
                     src={brand.logo}
-                    alt={brand.nombre}
+                    alt={brand.name}
                     fill
                     sizes="96px"
                     className="object-contain"

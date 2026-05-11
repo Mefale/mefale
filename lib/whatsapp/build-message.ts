@@ -2,7 +2,7 @@ import { formatPrice } from "@/utils/format-price";
 import type { CartItem } from "@/types/cart";
 
 type Customer = {
-  nombre?: string;
+  name?: string;
 };
 
 export function buildWhatsAppMessage(
@@ -11,10 +11,10 @@ export function buildWhatsAppMessage(
 ): string {
   const lines = items.map(
     (item) =>
-      `- ${item.nombre} (${item.sku}) x${item.cantidad} — ${formatPrice(item.precio * item.cantidad)}`
+      `- ${item.name} (${item.sku}) x${item.quantity} — ${formatPrice(item.price * item.quantity)}`
   );
 
-  const total = items.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
+  const total = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
 
   const parts: string[] = [
     "Hola, quiero consultar por estos productos:",
@@ -24,9 +24,9 @@ export function buildWhatsAppMessage(
     `Total estimado: ${formatPrice(total)}`,
   ];
 
-  if (customer?.nombre) {
+  if (customer?.name) {
     parts.push("");
-    parts.push(`Mi nombre es: ${customer.nombre}`);
+    parts.push(`Mi nombre es: ${customer.name}`);
   }
 
   parts.push("", "Gracias.");

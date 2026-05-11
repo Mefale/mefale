@@ -20,7 +20,7 @@ export default async function ProductosPage({ searchParams }: Props) {
   const [products, categories] = await Promise.all([getProducts(), getCategories()]);
 
   const filtered = categoria
-    ? products.filter((p) => p.categoria === categoria)
+    ? products.filter((p) => p.category === categoria)
     : products;
 
   return (

@@ -22,23 +22,23 @@ function rowToProduct(row: string[]): Product | null {
   const [sku, categoria, nombre, precioRaw] = row;
   if (!sku?.trim() || !nombre?.trim()) return null;
 
-  const precio = parsePrice(precioRaw ?? "");
-  if (precio <= 0) return null;
+  const price = parsePrice(precioRaw ?? "");
+  if (price <= 0) return null;
 
   const skuClean = sku.trim();
 
   return {
     id: skuClean.toLowerCase(),
     sku: skuClean,
-    nombre: nombre.trim(),
-    descripcion: "",
-    precio,
-    imagenes: [getImageUrl(skuClean)],
-    categoria: categoria?.trim() ?? "Sin categoría",
-    marca: "",
+    name: nombre.trim(),
+    description: "",
+    price,
+    images: [getImageUrl(skuClean)],
+    category: categoria?.trim() ?? "Sin categoría",
+    brand: "",
     stock: 1,
-    etiquetas: [],
-    destacado: false,
+    tags: [],
+    featured: false,
     createdAt: "",
     updatedAt: "",
   };
@@ -72,7 +72,7 @@ export const getCategories = unstable_cache(
     const products = await getProducts();
     const seen = new Set<string>();
     return products
-      .map((p) => p.categoria)
+      .map((p) => p.category)
       .filter((c) => {
         if (!c || seen.has(c)) return false;
         seen.add(c);

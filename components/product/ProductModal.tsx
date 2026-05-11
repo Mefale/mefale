@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { X, ShoppingCart } from "lucide-react";
+import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Product } from "@/types/product";
 
@@ -12,6 +12,12 @@ type Props = {
 };
 
 export function ProductModal({ product, onClose }: Props) {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [product?.id]);
+
   useEffect(() => {
     if (!product) return;
     const prev = document.body.style.overflow;
@@ -66,18 +72,15 @@ export function ProductModal({ product, onClose }: Props) {
 
               {/* Image */}
               <div className="relative w-full aspect-square bg-[#F1F3F5]">
-                {product.imagenes[0] ? (
+                {product.images[0] && !imgError && (
                   <Image
-                    src={product.imagenes[0]}
-                    alt={product.nombre}
+                    src={product.images[0]}
+                    alt={product.name}
                     fill
                     sizes="(max-width: 672px) 100vw, 672px"
                     className="object-cover"
+                    onError={() => setImgError(true)}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ShoppingCart className="w-16 h-16 text-[#A1A1AA] opacity-20" />
-                  </div>
                 )}
               </div>
 
@@ -87,10 +90,10 @@ export function ProductModal({ product, onClose }: Props) {
                   {product.sku}
                 </p>
                 <h2 className="text-sm font-semibold text-[#111827] leading-snug">
-                  {product.nombre}
+                  {product.name}
                 </h2>
                 <span className="text-base font-bold text-[#1A56DB] tabular-nums mt-1">
-                  {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(product.precio)}
+                  {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(product.price)}
                 </span>
               </div>
             </div>

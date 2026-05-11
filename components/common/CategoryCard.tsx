@@ -30,8 +30,8 @@ export function CategoryCard({ category, index = 0 }: Props) {
       >
         {/* BG image */}
         <Image
-          src={category.imagen}
-          alt={category.nombre}
+          src={category.image}
+          alt={category.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
@@ -43,10 +43,10 @@ export function CategoryCard({ category, index = 0 }: Props) {
         <div className="relative p-4 flex items-end justify-between gap-2">
           <div>
             <h3 className="font-semibold text-[#111827] text-sm leading-tight">
-              {category.nombre}
+              {category.name}
             </h3>
             <p className="text-xs text-[#6B7280] mt-0.5 line-clamp-1">
-              {category.descripcion}
+              {category.description}
             </p>
           </div>
           <div className="shrink-0 p-2 rounded-full bg-[#1A56DB]/10 border border-[#1A56DB]/20 group-hover:bg-[#1A56DB]/20 transition-colors">

@@ -14,7 +14,7 @@ export function HomeCatalog({ products, categories }: Props) {
   const [category, setCategory] = useState<string | undefined>(undefined);
 
   const filtered = category
-    ? products.filter((p) => p.categoria === category)
+    ? products.filter((p) => p.category === category)
     : products;
 
   return (

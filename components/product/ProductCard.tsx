@@ -16,7 +16,7 @@ type Props = {
 };
 
 export function ProductCard({ product, index = 0, onSelect }: Props) {
-  const mainImage = product.imagenes[0];
+  const mainImage = product.images[0];
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -41,14 +41,14 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
           {mainImage && !imgError && (
             <Image
               src={mainImage}
-              alt={product.nombre}
+              alt={product.name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 15vw"
               className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
               onError={() => setImgError(true)}
             />
           )}
-          {product.destacado && (
+          {product.featured && (
             <div className="absolute top-2 left-2">
               <Badge className="bg-[#1A56DB]/20 text-[#1A56DB] border-[#1A56DB]/30 text-[10px] px-2 py-0.5">
                 Destacado
@@ -69,15 +69,15 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
               {product.sku}
             </span>
             <h3 className="text-xs font-medium text-[#111827] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
-              {product.nombre}
+              {product.name}
             </h3>
           </div>
 
           <div className="flex items-center justify-between mt-auto pt-0.5">
             <span className="text-sm font-semibold text-[#111827] tabular-nums">
-              {formatPrice(product.precio)}
+              {formatPrice(product.price)}
             </span>
-            <span className="text-[10px] text-[#6B7280]">{product.marca}</span>
+            <span className="text-[10px] text-[#6B7280]">{product.brand}</span>
           </div>
 
           <AddToCartButton product={product} />

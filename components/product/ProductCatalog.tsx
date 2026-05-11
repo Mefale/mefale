@@ -24,7 +24,7 @@ export function ProductCatalog({ products }: Props) {
     if (!q) return products;
     return products.filter(
       (p) =>
-        p.nombre.toLowerCase().includes(q) ||
+        p.name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q)
     );
   }, [products, query]);

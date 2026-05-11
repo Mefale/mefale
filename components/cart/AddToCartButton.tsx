@@ -15,7 +15,7 @@ export function AddToCartButton({ product, className }: Props) {
   const hydrated = useCartHydrated();
 
   const inCart = items.find((i) => i.id === product.id);
-  const qty = inCart?.cantidad ?? 0;
+  const qty = inCart?.quantity ?? 0;
 
   function handleDecrease(e: React.MouseEvent) {
     e.preventDefault();
