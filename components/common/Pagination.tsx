@@ -14,6 +14,9 @@ export function Pagination({ page, totalPages, buildHref, onPageChange }: Props)
   if (totalPages <= 1) return null;
 
   const pages = buildPageList(page, totalPages);
+  const STEP = 10;
+  const prevStep = Math.max(1, page - STEP);
+  const nextStep = Math.min(totalPages, page + STEP);
 
   function go(p: number) {
     if (p < 1 || p > totalPages) return;
@@ -25,9 +28,9 @@ export function Pagination({ page, totalPages, buildHref, onPageChange }: Props)
   return (
     <div className="flex items-center justify-center gap-1 mt-10">
       <PageBtn
-        onClick={() => go(page - 1)}
+        onClick={() => go(prevStep)}
         disabled={page <= 1}
-        aria-label="Página anterior"
+        aria-label="Retroceder 10 páginas"
       >
         <ChevronLeft className="w-4 h-4" />
       </PageBtn>
@@ -49,9 +52,9 @@ export function Pagination({ page, totalPages, buildHref, onPageChange }: Props)
       )}
 
       <PageBtn
-        onClick={() => go(page + 1)}
+        onClick={() => go(nextStep)}
         disabled={page >= totalPages}
-        aria-label="Página siguiente"
+        aria-label="Avanzar 10 páginas"
       >
         <ChevronRight className="w-4 h-4" />
       </PageBtn>
