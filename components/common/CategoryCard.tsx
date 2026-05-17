@@ -23,9 +23,9 @@ export function CategoryCard({ category, index = 0 }: Props) {
         href={`/categorias/${category.slug}`}
         className={cn(
           "group relative flex flex-col justify-end rounded-xl overflow-hidden",
-          "border border-[#D1D5DB]/60 hover:border-[#1A56DB]/40",
+          "border border-[#E2E8F0] hover:border-[#1A56DB]/40",
           "h-44 sm:h-52",
-          "transition-all duration-300 hover:shadow-lg hover:shadow-[#1A56DB]/5"
+          "transition-all duration-300 shadow-sm hover:shadow-[0_10px_24px_rgba(15,23,42,0.10)]"
         )}
       >
         {/* BG image */}
@@ -34,23 +34,23 @@ export function CategoryCard({ category, index = 0 }: Props) {
           alt={category.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+          className="object-cover group-hover:scale-[1.05] transition-transform duration-500"
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#FFFFFF]/90 via-[#FFFFFF]/40 to-transparent" />
+        {/* Gradient overlay grafito */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/85 via-[#0F172A]/35 to-transparent" />
 
         {/* Content */}
         <div className="relative p-4 flex items-end justify-between gap-2">
-          <div>
-            <h3 className="font-semibold text-[#111827] text-sm leading-tight">
+          <div className="min-w-0">
+            <h3 className="font-bold text-white text-sm leading-tight">
               {category.name}
             </h3>
-            <p className="text-xs text-[#6B7280] mt-0.5 line-clamp-1">
+            <p className="text-xs text-white/70 mt-0.5 line-clamp-1">
               {category.description}
             </p>
           </div>
-          <div className="shrink-0 p-2 rounded-full bg-[#1A56DB]/10 border border-[#1A56DB]/20 group-hover:bg-[#1A56DB]/20 transition-colors">
-            <ArrowRight className="w-3.5 h-3.5 text-[#1A56DB]" />
+          <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-white/15 border border-white/20 backdrop-blur-sm group-hover:bg-[#1A56DB] group-hover:border-[#1A56DB] transition-colors">
+            <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>
       </Link>

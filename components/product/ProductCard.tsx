@@ -31,53 +31,60 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
         onClick={() => onSelect?.(product)}
         onKeyDown={(e) => e.key === "Enter" && onSelect?.(product)}
         className={cn(
-          "group flex flex-col rounded-xl border border-[#D1D5DB] bg-white shadow-sm overflow-hidden cursor-pointer",
-          "hover:border-[#111827] hover:shadow-md hover:shadow-black/10",
+          "group flex flex-col rounded-xl border border-[#E2E8F0] bg-white overflow-hidden cursor-pointer",
+          "shadow-[var(--shadow-card)]",
+          "hover:border-[#1A56DB]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
           "transition-all duration-300"
         )}
       >
         {/* Image */}
-        <div className="relative aspect-[4/3] bg-[#F1F3F5] overflow-hidden">
+        <div className="relative aspect-[4/3] bg-white overflow-hidden">
           {mainImage && !imgError && (
             <Image
               src={mainImage}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 15vw"
-              className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+              className="object-contain p-3"
               onError={() => setImgError(true)}
             />
           )}
           {product.featured && (
             <div className="absolute top-2 left-2">
-              <Badge className="bg-[#1A56DB]/20 text-[#1A56DB] border-[#1A56DB]/30 text-[10px] px-2 py-0.5">
+              <Badge className="bg-[#D97706] text-white border-transparent text-[10px] px-2 py-0.5 shadow-sm">
                 Destacado
               </Badge>
             </div>
           )}
           {product.stock === 0 && (
-            <div className="absolute inset-0 bg-[#FFFFFF]/70 flex items-center justify-center">
+            <div className="absolute inset-0 bg-white/75 backdrop-blur-[1px] flex items-center justify-center">
               <Badge variant="destructive" className="text-xs">Sin stock</Badge>
             </div>
           )}
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-1.5 p-3">
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-[9px] text-[#6B7280] font-mono uppercase tracking-wider">
-              {product.sku}
-            </span>
-            <h3 className="text-xs font-medium text-[#111827] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
+        <div className="flex flex-col gap-1.5 p-3 border-t border-[#F1F5F9]">
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block max-w-full truncate text-[9px] text-[#64748B] font-mono uppercase tracking-wider bg-[#F1F5F9] rounded px-1.5 py-0.5">
+                {product.sku}
+              </span>
+              {product.brand && (
+                <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wide truncate">
+                  {product.brand}
+                </span>
+              )}
+            </div>
+            <h3 className="text-xs font-semibold text-[#0F172A] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
               {product.name}
             </h3>
           </div>
 
-          <div className="flex items-center justify-between mt-auto pt-0.5">
-            <span className="text-sm font-semibold text-[#111827] tabular-nums">
+          <div className="mt-auto pt-1">
+            <span className="text-base font-bold text-[#0F172A] tabular-nums">
               {formatPrice(product.price)}
             </span>
-            <span className="text-[10px] text-[#6B7280]">{product.brand}</span>
           </div>
 
           <AddToCartButton product={product} />

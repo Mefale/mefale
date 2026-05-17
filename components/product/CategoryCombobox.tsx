@@ -67,13 +67,13 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
       <button
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
+          "w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-lg border text-sm font-medium transition-colors",
           open
-            ? "border-[#111827] bg-white text-[#111827] shadow-sm ring-2 ring-black/5"
-            : "border-[#D1D5DB] bg-white text-[#6B7280] shadow-sm hover:text-[#111827] hover:border-[#111827]"
+            ? "border-[#1A56DB] bg-white text-[#0F172A] shadow-sm ring-4 ring-[#1A56DB]/10"
+            : "border-[#E2E8F0] bg-white text-[#475569] shadow-sm hover:text-[#0F172A] hover:border-[#CBD5E1]"
         )}
       >
-        <span className={cn("truncate", selected ? "text-[#111827]" : "")}>
+        <span className={cn("truncate", selected ? "text-[#0F172A]" : "")}>
           {label}
         </span>
         <ChevronDown
@@ -83,19 +83,19 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-full z-40 rounded-lg border border-[#1A56DB]/40 bg-white shadow-lg overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 w-full z-40 rounded-xl border border-[#E2E8F0] bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] overflow-hidden">
           {/* Search input */}
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-[#1A56DB]/40">
-            <Search className="w-3.5 h-3.5 text-[#6B7280] shrink-0" />
+          <div className="flex items-center gap-2 px-3.5 py-2.5 border-b border-[#F1F5F9]">
+            <Search className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar categoría..."
-              className="flex-1 bg-transparent text-sm text-[#111827] placeholder:text-[#6B7280]/60 outline-none"
+              className="flex-1 bg-transparent text-sm text-[#0F172A] placeholder:text-[#94A3B8] outline-none"
             />
             {query && (
-              <button onClick={() => setQuery("")} className="text-[#6B7280] hover:text-[#111827]">
+              <button onClick={() => setQuery("")} className="text-[#94A3B8] hover:text-[#0F172A]">
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
@@ -109,8 +109,8 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
                 <button
                   onClick={() => navigate(null)}
                   className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-[#F1F3F5]",
-                    !selected ? "text-[#1A56DB]" : "text-[#6B7280]"
+                    "w-full flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium text-left transition-colors hover:bg-[#F8FAFC]",
+                    !selected ? "text-[#1A56DB]" : "text-[#475569]"
                   )}
                 >
                   <Check className={cn("w-3.5 h-3.5 shrink-0", !selected ? "opacity-100" : "opacity-0")} />
@@ -120,7 +120,7 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
             )}
 
             {filtered.length === 0 ? (
-              <li className="px-3 py-4 text-sm text-[#6B7280] text-center">
+              <li className="px-3 py-4 text-sm text-[#94A3B8] text-center">
                 Sin resultados
               </li>
             ) : (
@@ -129,8 +129,8 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
                   <button
                     onClick={() => navigate(cat)}
                     className={cn(
-                      "w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-[#F1F3F5]",
-                      selected === cat ? "text-[#1A56DB]" : "text-[#6B7280] hover:text-[#111827]"
+                      "w-full flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium text-left transition-colors hover:bg-[#F8FAFC]",
+                      selected === cat ? "text-[#1A56DB]" : "text-[#475569] hover:text-[#0F172A]"
                     )}
                   >
                     <Check
