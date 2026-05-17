@@ -24,3 +24,7 @@ yarn-error.log*
 .DS_Store
 *.pem
 .vercel
+.env*.local
+
+# Windows: metadata de archivos descargados
+*Zone.Identifier
