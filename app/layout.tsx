@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="es" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased min-h-screen" style={{ backgroundColor: "#FFFFFF", color: "#0F172A" }}>
         {children}
         <Analytics />

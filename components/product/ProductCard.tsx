@@ -82,9 +82,6 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
           </div>
 
           <div className="mt-auto pt-1">
-            <span className="block text-[10px] font-medium text-[#64748B]">
-              Precio distribuidor
-            </span>
             <span className="text-base font-bold text-[#0F172A] tabular-nums">
               {formatPrice(product.price)}
             </span>

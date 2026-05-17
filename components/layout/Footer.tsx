@@ -39,19 +39,27 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               {[
                 { href: "/productos", label: "Todos los productos" },
-                { href: "/categorias/iluminacion", label: "Iluminación" },
-                { href: "/categorias/cables-y-conductores", label: "Cables" },
-                { href: "/categorias/herramientas", label: "Herramientas" },
-              ].map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-[#94A3B8] hover:text-white transition-colors"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
+                { href: null, label: "Iluminación" },
+                { href: null, label: "Cables" },
+                { href: null, label: "Herramientas" },
+              ].map((l) =>
+                l.href ? (
+                  <li key={l.label}>
+                    <Link
+                      href={l.href}
+                      className="text-sm text-[#94A3B8] hover:text-white transition-colors"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ) : (
+                  <li key={l.label}>
+                    <span className="text-sm text-[#94A3B8] cursor-default select-none">
+                      {l.label}
+                    </span>
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
