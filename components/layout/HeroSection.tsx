@@ -61,12 +61,12 @@ export function HeroSection() {
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
             className="text-4xl sm:text-5xl lg:text-[3.75rem] font-extrabold text-[#0F172A] tracking-[-0.03em] leading-[1.05]"
           >
-            Materiales{" "}
+            Distribuidora de Materiales{" "}
             <span className="relative whitespace-nowrap text-[#1A56DB]">
               Eléctricos
               <span className="absolute -bottom-1 left-0 w-full h-1 bg-[#1A56DB]/20 rounded-full" />
             </span>{" "}
-            e Iluminación para profesionales
+            e Iluminación
           </motion.h1>
 
           {/* Subheadline */}
@@ -148,7 +148,7 @@ export function HeroSection() {
               {brands.map((brand) => (
                 <div
                   key={brand.name}
-                  className="relative h-7 w-24 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                  className="relative h-7 w-24"
                 >
                   <Image
                     src={brand.logo}

@@ -32,26 +32,26 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
         onKeyDown={(e) => e.key === "Enter" && onSelect?.(product)}
         className={cn(
           "group flex flex-col rounded-xl border border-[#E2E8F0] bg-white overflow-hidden cursor-pointer",
-          "shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
-          "hover:border-[#1A56DB]/40 hover:shadow-[0_4px_6px_rgba(15,23,42,0.05),0_10px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5",
+          "shadow-[var(--shadow-card)]",
+          "hover:border-[#1A56DB]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
           "transition-all duration-300"
         )}
       >
         {/* Image */}
-        <div className="relative aspect-[4/3] bg-[#F1F5F9] overflow-hidden">
+        <div className="relative aspect-[4/3] bg-white overflow-hidden">
           {mainImage && !imgError && (
             <Image
               src={mainImage}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 15vw"
-              className="object-cover group-hover:scale-[1.05] transition-transform duration-500"
+              className="object-contain p-3"
               onError={() => setImgError(true)}
             />
           )}
           {product.featured && (
             <div className="absolute top-2 left-2">
-              <Badge className="bg-[#1A56DB] text-white border-transparent text-[10px] px-2 py-0.5 shadow-sm">
+              <Badge className="bg-[#D97706] text-white border-transparent text-[10px] px-2 py-0.5 shadow-sm">
                 Destacado
               </Badge>
             </div>
@@ -65,21 +65,28 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
 
         {/* Content */}
         <div className="flex flex-col gap-1.5 p-3 border-t border-[#F1F5F9]">
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[9px] text-[#94A3B8] font-mono uppercase tracking-wider">
-              {product.sku}
-            </span>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block max-w-full truncate text-[9px] text-[#64748B] font-mono uppercase tracking-wider bg-[#F1F5F9] rounded px-1.5 py-0.5">
+                {product.sku}
+              </span>
+              {product.brand && (
+                <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wide truncate">
+                  {product.brand}
+                </span>
+              )}
+            </div>
             <h3 className="text-xs font-semibold text-[#0F172A] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
               {product.name}
             </h3>
           </div>
 
-          <div className="flex items-baseline justify-between gap-2 mt-auto pt-1">
-            <span className="text-sm font-bold text-[#0F172A] tabular-nums">
-              {formatPrice(product.price)}
+          <div className="mt-auto pt-1">
+            <span className="block text-[10px] font-medium text-[#64748B]">
+              Precio distribuidor
             </span>
-            <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wide truncate">
-              {product.brand}
+            <span className="text-base font-bold text-[#0F172A] tabular-nums">
+              {formatPrice(product.price)}
             </span>
           </div>
 
