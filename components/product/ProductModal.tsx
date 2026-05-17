@@ -44,7 +44,7 @@ export function ProductModal({ product, onClose }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-[#0F172A]/70 backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -58,20 +58,20 @@ export function ProductModal({ product, onClose }: Props) {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className="relative w-full max-w-xs rounded-2xl bg-[#F8F9FA] border border-[#D1D5DB]/60 shadow-2xl overflow-hidden pointer-events-auto"
+              className="relative w-full max-w-sm rounded-2xl bg-white border border-[#E2E8F0] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.35)] overflow-hidden pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close */}
               <button
                 onClick={onClose}
                 aria-label="Cerrar"
-                className="absolute top-3 right-3 z-10 p-1.5 rounded-lg text-[#A1A1AA] hover:text-[#111827] hover:bg-[#F1F3F5] transition-colors"
+                className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-white/80 backdrop-blur-sm text-[#475569] hover:text-[#0F172A] hover:bg-white shadow-sm transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
               {/* Image */}
-              <div className="relative w-full aspect-square bg-[#F1F3F5]">
+              <div className="relative w-full aspect-square bg-[#F1F5F9]">
                 {product.images[0] && !imgError && (
                   <Image
                     src={product.images[0]}
@@ -85,14 +85,20 @@ export function ProductModal({ product, onClose }: Props) {
               </div>
 
               {/* Info */}
-              <div className="px-4 py-3 flex flex-col gap-1">
-                <p className="text-[10px] text-[#6B7280] font-mono uppercase tracking-wider">
-                  {product.sku}
-                </p>
-                <h2 className="text-sm font-semibold text-[#111827] leading-snug">
+              <div className="px-5 py-4 flex flex-col gap-1.5 border-t border-[#F1F5F9]">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-[#94A3B8] font-mono uppercase tracking-wider">
+                    {product.sku}
+                  </span>
+                  <span className="w-1 h-1 rounded-full bg-[#CBD5E1]" />
+                  <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wide">
+                    {product.brand}
+                  </span>
+                </div>
+                <h2 className="text-base font-bold text-[#0F172A] leading-snug">
                   {product.name}
                 </h2>
-                <span className="text-base font-bold text-[#1A56DB] tabular-nums mt-1">
+                <span className="text-xl font-extrabold text-[#0F172A] tabular-nums mt-1.5">
                   {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(product.price)}
                 </span>
               </div>

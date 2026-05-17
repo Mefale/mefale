@@ -37,7 +37,7 @@ export function Pagination({ page, totalPages, buildHref, onPageChange }: Props)
 
       {pages.map((p, i) =>
         p === "..." ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-[#6B7280] text-sm select-none">
+          <span key={`ellipsis-${i}`} className="px-2 text-[#94A3B8] text-sm select-none">
             …
           </span>
         ) : (
@@ -81,10 +81,10 @@ function PageBtn({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        "w-9 h-9 flex items-center justify-center rounded-lg text-sm transition-colors",
-        disabled && "text-[#3F3F46] cursor-not-allowed",
-        active && "bg-[#1A56DB] text-[#FFFFFF] font-semibold",
-        !active && !disabled && "text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F3F5]"
+        "w-9 h-9 flex items-center justify-center rounded-lg text-sm border transition-colors",
+        disabled && "text-[#CBD5E1] border-transparent cursor-not-allowed",
+        active && "bg-[#1A56DB] text-white border-[#1A56DB] font-semibold shadow-sm shadow-[#1A56DB]/20",
+        !active && !disabled && "text-[#475569] border-[#E2E8F0] bg-white hover:text-[#0F172A] hover:border-[#CBD5E1] hover:bg-[#F8FAFC]"
       )}
     >
       {children}

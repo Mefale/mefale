@@ -1,43 +1,64 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Custom design tokens */
+  /* === Industrial pro: grafito (slate) + azul eléctrico === */
+
+  /* Superficies */
   --color-background: #FFFFFF;
-  --color-surface: #F8F9FA;
-  --color-surface-2: #F1F3F5;
-  --color-border: #D1D5DB;
-  --color-text: #111827;
-  --color-text-muted: #6B7280;
+  --color-surface: #F8FAFC;     /* slate-50  — secciones */
+  --color-surface-2: #F1F5F9;   /* slate-100 — chips / hover */
+  --color-border: #E2E8F0;      /* slate-200 — borde default */
+  --color-border-strong: #CBD5E1; /* slate-300 — borde marcado */
+
+  /* Texto */
+  --color-text: #0F172A;        /* slate-900 — ink */
+  --color-text-muted: #475569;  /* slate-600 */
+  --color-text-soft: #64748B;   /* slate-500 */
+
+  /* Grafito (estructura oscura: footer, contraste) */
+  --color-graphite: #0F172A;    /* slate-900 */
+  --color-graphite-2: #1E293B;  /* slate-800 */
+  --color-graphite-3: #334155;  /* slate-700 */
+
+  /* Acento eléctrico */
   --color-accent: #1A56DB;
   --color-accent-strong: #1447C0;
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
+  --color-accent-soft: #EFF4FE;
 
-  /* shadcn compat colors */
-  --color-foreground: #111827;
-  --color-card: #F8F9FA;
-  --color-card-foreground: #111827;
-  --color-popover: #F8F9FA;
-  --color-popover-foreground: #111827;
+  /* Semánticos */
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+
+  /* shadcn compat */
+  --color-foreground: #0F172A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #0F172A;
   --color-primary: #1A56DB;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: #F1F3F5;
-  --color-secondary-foreground: #111827;
-  --color-muted: #F1F3F5;
-  --color-muted-foreground: #6B7280;
-  --color-destructive: #EF4444;
+  --color-secondary: #F1F5F9;
+  --color-secondary-foreground: #0F172A;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+  --color-destructive: #DC2626;
   --color-destructive-foreground: #FFFFFF;
-  --color-input: #D1D5DB;
+  --color-input: #CBD5E1;
   --color-ring: #1A56DB;
 
-  /* Border radius */
-  --radius: 0.75rem;
+  /* Radios */
+  --radius: 0.625rem;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Fonts */
+  /* Sombras industriales: suaves, frías */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-card-hover: 0 4px 6px rgba(15, 23, 42, 0.05), 0 10px 24px rgba(15, 23, 42, 0.08);
+  --shadow-panel: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
+
+  /* Fuentes */
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
 }
@@ -47,30 +68,48 @@
     scroll-behavior: smooth;
   }
   * {
-    border-color: #D1D5DB;
+    border-color: #E2E8F0;
   }
   body {
     background-color: #FFFFFF;
-    color: #111827;
+    color: #0F172A;
     font-family: var(--font-geist-sans), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
   }
   ::selection {
-    background-color: #1A56DB20;
-    color: #1A56DB;
+    background-color: #1A56DB;
+    color: #FFFFFF;
   }
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 10px;
+    height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #F1F3F5;
+    background: #F1F5F9;
   }
   ::-webkit-scrollbar-thumb {
-    background: #D1D5DB;
-    border-radius: 3px;
+    background: #CBD5E1;
+    border: 2px solid #F1F5F9;
+    border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #9CA3AF;
+    background: #94A3B8;
+  }
+}
+
+@layer utilities {
+  /* Patrón técnico sutil para el hero */
+  .bg-grid-technical {
+    background-image:
+      linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
   }
 }

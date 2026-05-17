@@ -65,7 +65,8 @@
       "Bash(wsl.exe -- bash -lc 'cd /home/manchi/development/mefale && npx tsc --noEmit 2>&1 | wc -l')",
       "Bash(wsl.exe -- bash -lc 'cd /home/manchi/development/mefale && sed -i -E \"s/^\\(\\\\s+\\)\\(price|order|featured\\):\\([^ ]\\)/\\\\1\\\\2: \\\\3/g\" lib/mock-data.ts && head -30 lib/mock-data.ts')",
       "Bash(wsl.exe -- bash -lc 'cd /home/manchi/development/mefale && npx tsc --noEmit 2>&1')",
-      "Bash(wsl.exe -- bash -lc 'cd /home/manchi/development/mefale && npx tsc --noEmit; echo \"EXIT=$?\"')"
+      "Bash(wsl.exe -- bash -lc 'cd /home/manchi/development/mefale && npx tsc --noEmit; echo \"EXIT=$?\"')",
+      "Bash(git diff *)"
     ],
     "additionalDirectories": [
       "\\\\wsl$\\Ubuntu\\home\\manchi\\development\\mefale",
