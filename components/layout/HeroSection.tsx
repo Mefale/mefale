@@ -106,6 +106,7 @@ export function HeroSection() {
               <Link
                 href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5491100000000"}`}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <MessageCircle className="w-4 h-4" />
                 Consultar por WhatsApp
