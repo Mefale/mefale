@@ -62,7 +62,7 @@ export function AddToCartButton({ product, className }: Props) {
         "text-sm font-bold tabular-nums min-w-[1.5rem] text-center",
         qty > 0 ? "text-white" : "text-[#475569]"
       )}>
-        {qty === 0 ? "Agregar" : qty}
+        {qty}
       </span>
       <button
         onClick={handleIncrease}
