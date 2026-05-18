@@ -82,9 +82,25 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
           </div>
 
           <div className="mt-auto pt-1">
-            <span className="text-base font-bold text-[#0F172A] tabular-nums">
-              {formatPrice(product.price)}
-            </span>
+            {product.discountPrice ? (
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base font-bold text-[#DC2626] tabular-nums">
+                    {formatPrice(product.discountPrice)}
+                  </span>
+                  <span className="text-[10px] font-bold text-white bg-[#DC2626] px-1.5 py-0.5 rounded">
+                    -{Math.round((1 - product.discountPrice / product.price) * 100)}%
+                  </span>
+                </div>
+                <span className="text-xs text-[#94A3B8] line-through tabular-nums">
+                  {formatPrice(product.price)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-base font-bold text-[#0F172A] tabular-nums">
+                {formatPrice(product.price)}
+              </span>
+            )}
           </div>
 
           <AddToCartButton product={product} />
