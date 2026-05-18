@@ -52,9 +52,10 @@ export const useCartStore = create<CartState>()(
                 id: product.id,
                 sku: product.sku,
                 name: product.name,
-                price: product.price,
+                price: product.discountPrice ?? product.price,
                 image: product.images[0],
                 quantity,
+                isOffer: !!product.discountPrice,
               },
             ],
           });

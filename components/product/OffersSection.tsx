@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { Container } from "@/components/layout/Container";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
@@ -27,25 +27,24 @@ export function OffersSection({ products }: Props) {
   return (
     <>
       <Container>
-        <section className="bg-[#FAF9F7] border border-[#E8E4DC] border-l-4 border-l-[#DC2626] rounded-2xl px-6 py-8 shadow-[0_0_0_1px_rgba(220,38,38,0.07),0_4px_24px_-4px_rgba(220,38,38,0.12)]">
+        <section className="bg-amber-50 border border-amber-100 rounded-2xl px-6 py-6">
           {/* Header */}
-          <div className="flex items-start justify-between mb-5">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-lg sm:text-xl font-bold text-[#0F172A]">
-                  Ofertas vigentes
-                </h2>
-                <span className="text-[11px] font-semibold text-[#DC2626] bg-[#FFF1F2] border border-[#FECDD3] px-2 py-0.5 rounded-full">
-                  {products.length} {products.length === 1 ? "nueva" : "nuevas"}
-                </span>
-              </div>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="flex items-center gap-1.5 bg-[#DC2626] text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
+                <Zap className="w-3.5 h-3.5" strokeWidth={2.5} />
+                OFERTAS
+              </span>
               <p className="text-sm text-[#64748B]">
-                Precios especiales · cantidades limitadas
+                Productos seleccionados con precio especial
               </p>
             </div>
 
             {totalPages > 1 && (
-              <div className="hidden sm:flex items-center gap-1.5 shrink-0 pt-1">
+              <div className="hidden sm:flex items-center gap-2 shrink-0">
+                <span className="text-sm text-[#64748B] tabular-nums">
+                  {page + 1} / {totalPages}
+                </span>
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
@@ -113,13 +112,6 @@ function OfferCard({
 }) {
   const [imgError, setImgError] = useState(false);
   const mainImage = product.images[0];
-  const discount = product.discountPrice
-    ? Math.round((1 - product.discountPrice / product.price) * 100)
-    : null;
-  const savings = product.discountPrice
-    ? product.price - product.discountPrice
-    : null;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -133,13 +125,13 @@ function OfferCard({
         onClick={() => onSelect(product)}
         onKeyDown={(e) => e.key === "Enter" && onSelect(product)}
         className={cn(
-          "group flex flex-col rounded-xl border border-[#E2E8F0] bg-[#FFFAF9] overflow-hidden cursor-pointer",
+          "group flex flex-col rounded-xl border border-[#E2E8F0] bg-white overflow-hidden cursor-pointer",
           "shadow-[var(--shadow-card)]",
-          "hover:border-[#DC2626]/30 hover:shadow-[0_4px_16px_-4px_rgba(220,38,38,0.18)] hover:-translate-y-0.5",
+          "hover:border-[#1A56DB]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
           "transition-all duration-300"
         )}
       >
-        {/* Image with ribbon */}
+        {/* Image with badge */}
         <div className="relative aspect-[4/3] bg-[#F8FAFC] overflow-hidden">
           {mainImage && !imgError && (
             <Image
@@ -151,11 +143,11 @@ function OfferCard({
               onError={() => setImgError(true)}
             />
           )}
-          {discount && (
-            <div className="absolute top-3 -left-7 w-28 text-center bg-[#DC2626] text-white text-[10px] font-bold py-1 rotate-[-45deg] shadow-sm pointer-events-none">
-              -{discount}% OFF
-            </div>
-          )}
+          <div className="absolute top-2 left-2 pointer-events-none">
+            <span className="bg-[#DC2626] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+              OFERTA
+            </span>
+          </div>
         </div>
 
         {/* Content */}
@@ -168,26 +160,10 @@ function OfferCard({
             {product.name}
           </h3>
 
-          <div className="mt-auto flex flex-col gap-0.5">
-            {product.discountPrice && savings ? (
-              <>
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs text-[#94A3B8] line-through tabular-nums">
-                    {formatPrice(product.price)}
-                  </span>
-                  <span className="text-[10px] font-bold text-[#16A34A] bg-[#F0FDF4] border border-[#BBF7D0] px-1.5 py-0.5 rounded tabular-nums">
-                    -{formatPrice(savings)}
-                  </span>
-                </div>
-                <span className="text-base font-bold text-[#0F172A] tabular-nums">
-                  {formatPrice(product.discountPrice)}
-                </span>
-              </>
-            ) : (
-              <span className="text-base font-bold text-[#0F172A] tabular-nums">
-                {formatPrice(product.price)}
-              </span>
-            )}
+          <div className="mt-auto">
+            <span className="text-base font-bold text-[#0F172A] tabular-nums">
+              {formatPrice(product.discountPrice ?? product.price)}
+            </span>
           </div>
 
           <AddToCartButton product={product} />

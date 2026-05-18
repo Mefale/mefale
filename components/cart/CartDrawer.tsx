@@ -186,9 +186,16 @@ export function CartDrawer() {
                       <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="text-[10px] text-[#94A3B8] font-mono uppercase tracking-wider">
-                              {item.sku}
-                            </p>
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <p className="text-[10px] text-[#94A3B8] font-mono uppercase tracking-wider">
+                                {item.sku}
+                              </p>
+                              {item.isOffer && (
+                                <span className="bg-[#DC2626] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                  OFERTA
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm font-medium text-[#0F172A] leading-snug line-clamp-2">
                               {item.name}
                             </p>

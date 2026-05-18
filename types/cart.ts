@@ -5,4 +5,5 @@ export type CartItem = {
   price: number;
   image?: string;
   quantity: number;
+  isOffer?: boolean;
 };
