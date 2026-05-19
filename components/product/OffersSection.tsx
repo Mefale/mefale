@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flame, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { Container } from "@/components/layout/Container";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
@@ -27,7 +27,7 @@ export function OffersSection({ products }: Props) {
   return (
     <>
       <Container>
-        <section className="bg-amber-50 border border-amber-100 rounded-2xl px-6 py-6">
+        <section className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 border border-amber-200 rounded-2xl px-6 py-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3 flex-wrap">
@@ -127,12 +127,12 @@ function OfferCard({
         className={cn(
           "group flex flex-col rounded-xl border border-[#E2E8F0] bg-white overflow-hidden cursor-pointer",
           "shadow-[var(--shadow-card)]",
-          "hover:border-[#1A56DB]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
+          "hover:border-[#DC2626]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
           "transition-all duration-300"
         )}
       >
         {/* Image with badge */}
-        <div className="relative aspect-[4/3] bg-[#F8FAFC] overflow-hidden">
+        <div className="relative aspect-[4/3] bg-amber-50/60 overflow-hidden">
           {mainImage && !imgError && (
             <Image
               src={mainImage}
@@ -144,7 +144,8 @@ function OfferCard({
             />
           )}
           <div className="absolute top-2 left-2 pointer-events-none">
-            <span className="bg-[#DC2626] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+            <span className="bg-[#DC2626] text-white text-[10px] font-extrabold px-2 py-1 rounded-md shadow-md flex items-center gap-1">
+              <Flame className="w-3 h-3" strokeWidth={2.5} />
               OFERTA
             </span>
           </div>
@@ -156,12 +157,12 @@ function OfferCard({
             {product.sku}
           </span>
 
-          <h3 className="text-xs font-semibold text-[#0F172A] leading-snug line-clamp-2 group-hover:text-[#1A56DB] transition-colors">
+          <h3 className="text-xs font-semibold text-[#0F172A] leading-snug line-clamp-2 group-hover:text-[#DC2626] transition-colors">
             {product.name}
           </h3>
 
           <div className="mt-auto">
-            <span className="text-base font-bold text-[#0F172A] tabular-nums">
+            <span className="text-lg font-extrabold text-[#DC2626] tabular-nums">
               {formatPrice(product.discountPrice ?? product.price)}
             </span>
           </div>
