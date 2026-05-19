@@ -12,9 +12,15 @@ function getImageUrl(sku: string): string {
 }
 
 function parsePrice(raw: string): number {
-  // Handles formats like "$1.200,50", "1200.50", "1,200"
-  const cleaned = raw.replace(/[$ ]/g, "").replace(/\.(?=\d{3})/g, "").replace(",", ".");
-  const n = parseFloat(cleaned);
+  // Sheets puede devolver "1200.50" (formato US numérico) o "$1.200,50" (texto AR).
+  // Si hay coma, asumimos formato AR: punto = miles, coma = decimal.
+  // Si no hay coma, asumimos que el punto es decimal (caso por defecto de Sheets).
+  const clean = raw.replace(/[$ ]/g, "");
+  if (!clean) return 0;
+  const normalized = clean.includes(",")
+    ? clean.replace(/\./g, "").replace(",", ".")
+    : clean;
+  const n = parseFloat(normalized);
   return isNaN(n) ? 0 : n;
 }
 
