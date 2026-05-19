@@ -71,14 +71,14 @@ export function ProductModal({ product, onClose }: Props) {
               </button>
 
               {/* Image */}
-              <div className="relative w-full aspect-square bg-[#F1F5F9]">
+              <div className="relative w-full aspect-square bg-white">
                 {product.images[0] && !imgError && (
                   <Image
                     src={product.images[0]}
                     alt={product.name}
                     fill
                     sizes="(max-width: 672px) 100vw, 672px"
-                    className="object-cover"
+                    className="object-contain p-6"
                     onError={() => setImgError(true)}
                   />
                 )}
