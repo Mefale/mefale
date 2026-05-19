@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useCart, useCartHydrated } from "@/hooks/use-cart";
 
 const navLinks = [
-  { href: "/productos", label: "Catálogo" },
+  { href: "/products", label: "Catálogo" },
 ];
 
 export function Navbar() {

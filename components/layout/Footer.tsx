@@ -38,7 +38,7 @@ export function Footer() {
             </h3>
             <ul className="flex flex-col gap-2.5">
               {[
-                { href: "/productos", label: "Todos los productos" },
+                { href: "/products", label: "Todos los productos" },
                 { href: null, label: "Iluminación" },
                 { href: null, label: "Cables" },
                 { href: null, label: "Herramientas" },

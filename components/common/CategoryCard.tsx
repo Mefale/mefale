@@ -20,7 +20,7 @@ export function CategoryCard({ category, index = 0 }: Props) {
       transition={{ duration: 0.3, delay: index * 0.06, ease: "easeOut" }}
     >
       <Link
-        href={`/categorias/${category.slug}`}
+        href={`/categories/${category.slug}`}
         className={cn(
           "group relative flex flex-col justify-end rounded-xl overflow-hidden",
           "border border-[#E2E8F0] hover:border-[#1A56DB]/40",

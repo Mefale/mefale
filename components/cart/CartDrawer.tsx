@@ -263,7 +263,7 @@ function CartEmpty({ onClose }: { onClose: () => void }) {
         </p>
       </div>
       <Link
-        href="/productos"
+        href="/products"
         onClick={onClose}
         className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F172A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#1A56DB] transition-colors"
       >

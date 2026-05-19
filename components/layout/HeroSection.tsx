@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
 
 const brands = [
-  { name: "Argenplas", logo: "/marcas/argenplas.png" },
-  { name: "Jeluz",     logo: "/marcas/jeluz.png" },
-  { name: "Kalop",     logo: "/marcas/kalop.png" },
-  { name: "Re-Flex",   logo: "/marcas/re-flex.png" },
-  { name: "Sica",      logo: "/marcas/sica.png" },
-  { name: "Dayton",    logo: "/marcas/dayton.png" },
+  { name: "Argenplas", logo: "/brands/argenplas.png" },
+  { name: "Jeluz",     logo: "/brands/jeluz.png" },
+  { name: "Kalop",     logo: "/brands/kalop.png" },
+  { name: "Re-Flex",   logo: "/brands/re-flex.png" },
+  { name: "Sica",      logo: "/brands/sica.png" },
+  { name: "Dayton",    logo: "/brands/dayton.png" },
 ];
 
 const features = [
@@ -92,7 +92,7 @@ export function HeroSection() {
               size="lg"
               className="bg-[#1A56DB] hover:bg-[#1447C0] text-white font-semibold gap-2 h-12 px-7 shadow-md shadow-[#1A56DB]/20"
             >
-              <a href="#catalogo">
+              <a href="#catalog">
                 Ver catálogo completo
                 <ArrowRight className="w-4 h-4" />
               </a>

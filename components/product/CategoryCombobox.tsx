@@ -29,7 +29,7 @@ export function CategoryCombobox({ categories, selected, onChange }: Props) {
     if (isControlled) {
       onChange!(cat);
     } else {
-      router.push(cat ? `/productos?categoria=${encodeURIComponent(cat)}` : "/productos");
+      router.push(cat ? `/products?category=${encodeURIComponent(cat)}` : "/products");
     }
   }
 

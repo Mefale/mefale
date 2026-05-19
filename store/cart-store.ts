@@ -86,7 +86,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "grasser-cart-v1",
-      // No persistir el estado del drawer
+      // Don't persist drawer state
       partialize: (state) => ({ items: state.items }),
     }
   )
