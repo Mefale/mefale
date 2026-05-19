@@ -169,14 +169,14 @@ export function CartDrawer() {
                   {items.map((item) => (
                     <li key={item.id} className="flex gap-3 p-4 hover:bg-[#F8FAFC] transition-colors">
                       {/* Image */}
-                      <div className="relative w-16 h-16 rounded-lg bg-[#F1F5F9] border border-[#E2E8F0] overflow-hidden shrink-0">
+                      <div className="relative w-16 h-16 rounded-lg bg-white border border-[#E2E8F0] overflow-hidden shrink-0">
                         {item.image && !imgErrors.has(item.id) && (
                           <Image
                             src={item.image}
                             alt={item.name}
                             fill
                             sizes="64px"
-                            className="object-cover"
+                            className="object-contain p-1"
                             onError={() => handleImgError(item.id)}
                           />
                         )}
