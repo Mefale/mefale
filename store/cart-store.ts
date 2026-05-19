@@ -10,6 +10,7 @@ const MAX_CART_ITEMS = 50;
 type CartState = {
   items: CartItem[];
   isDrawerOpen: boolean;
+  discountPercentage: number;
 
   add: (product: Product, quantity?: number) => void;
   remove: (id: string) => void;
@@ -17,6 +18,7 @@ type CartState = {
   clear: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
+  setDiscountPercentage: (value: number) => void;
 
   subtotal: () => number;
   itemCount: () => number;
@@ -27,6 +29,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isDrawerOpen: false,
+      discountPercentage: 0,
 
       add: (product, quantity = 1) => {
         const { items } = get();
@@ -77,6 +80,11 @@ export const useCartStore = create<CartState>()(
 
       openDrawer: () => set({ isDrawerOpen: true }),
       closeDrawer: () => set({ isDrawerOpen: false }),
+
+      setDiscountPercentage: (value) => {
+        const safe = Number.isFinite(value) ? value : 0;
+        set({ discountPercentage: Math.max(0, Math.min(100, safe)) });
+      },
 
       subtotal: () =>
         get().items.reduce((acc, i) => acc + i.price * i.quantity, 0),
