@@ -14,17 +14,17 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ categoria?: string }>;
+  searchParams: Promise<{ category?: string }>;
 };
 
-async function CatalogSection({ categoria }: { categoria?: string }) {
+async function CatalogSection({ category }: { category?: string }) {
   const [products, categories] = await Promise.all([
     getProducts(),
     getCategories(),
   ]);
 
-  const filtered = categoria
-    ? products.filter((p) => p.category === categoria)
+  const filtered = category
+    ? products.filter((p) => p.category === category)
     : products;
 
   return (
@@ -32,14 +32,14 @@ async function CatalogSection({ categoria }: { categoria?: string }) {
       {/* Header */}
       <div className="mb-8">
         <SectionHeader
-          title={categoria ?? "Catálogo"}
+          title={category ?? "Catálogo"}
           subtitle={`${filtered.length} productos disponibles`}
         />
       </div>
 
       {/* Category filter */}
       <div className="mb-8">
-        <CategoryCombobox categories={categories} selected={categoria} />
+        <CategoryCombobox categories={categories} selected={category} />
       </div>
 
       {/* Catalog: search + grid + pagination */}
@@ -48,14 +48,14 @@ async function CatalogSection({ categoria }: { categoria?: string }) {
   );
 }
 
-export default async function ProductosPage({ searchParams }: Props) {
-  const { categoria } = await searchParams;
+export default async function ProductsPage({ searchParams }: Props) {
+  const { category } = await searchParams;
 
   return (
     <div className="pt-24 pb-16">
       <Container>
         <Suspense
-          key={categoria ?? "all"}
+          key={category ?? "all"}
           fallback={
             <>
               <div className="mb-8 flex flex-col gap-2">
@@ -67,7 +67,7 @@ export default async function ProductosPage({ searchParams }: Props) {
             </>
           }
         >
-          <CatalogSection categoria={categoria} />
+          <CatalogSection category={category} />
         </Suspense>
       </Container>
     </div>

@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getSheetsClient } from "./client";
 import type { Product } from "@/types/product";
 
-// Columns: A=SKU, B=Categoria, C=Nombre/Descripcion, D=Precio
+// Columns: A=SKU, B=Category, C=Name/Description, D=Price
 const RANGE = "A2:D";
 
 function getImageUrl(sku: string): string {
@@ -19,10 +19,10 @@ function parsePrice(raw: string): number {
 }
 
 function rowToProduct(row: string[]): Product | null {
-  const [sku, categoria, nombre, precioRaw] = row;
-  if (!sku?.trim() || !nombre?.trim()) return null;
+  const [sku, category, name, priceRaw] = row;
+  if (!sku?.trim() || !name?.trim()) return null;
 
-  const price = parsePrice(precioRaw ?? "");
+  const price = parsePrice(priceRaw ?? "");
   if (price <= 0) return null;
 
   const skuClean = sku.trim();
@@ -30,11 +30,11 @@ function rowToProduct(row: string[]): Product | null {
   return {
     id: skuClean.toLowerCase(),
     sku: skuClean,
-    name: nombre.trim(),
+    name: name.trim(),
     description: "",
     price,
     images: [getImageUrl(skuClean)],
-    category: categoria?.trim() ?? "Sin categoría",
+    category: category?.trim() ?? "Uncategorized",
     brand: "",
     stock: 1,
     tags: [],

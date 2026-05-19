@@ -19,7 +19,7 @@ export default function HomePage() {
     <>
       <HeroSection />
 
-      <section id="catalogo" className="pb-16">
+      <section id="catalog" className="pb-16">
         <Container>
           <Suspense
             fallback={

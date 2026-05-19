@@ -18,7 +18,7 @@ const customerSchema = z.object({
 });
 type CustomerForm = z.infer<typeof customerSchema>;
 
-export default function CarritoPage() {
+export default function CartPage() {
   const { items, remove, setQuantity, subtotal, clear } = useCart();
   const hydrated = useCartHydrated();
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
@@ -63,7 +63,7 @@ export default function CarritoPage() {
               </p>
             </div>
             <Link
-              href="/productos"
+              href="/products"
               className="inline-flex items-center gap-2 rounded-lg bg-[#0F172A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1A56DB] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -80,7 +80,7 @@ export default function CarritoPage() {
       <Container>
         <div className="mb-8 flex items-center gap-3">
           <Link
-            href="/productos"
+            href="/products"
             className="p-2 rounded-lg border border-[#E2E8F0] bg-white text-[#475569] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-colors"
             aria-label="Volver al catálogo"
           >

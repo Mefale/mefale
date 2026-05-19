@@ -7,7 +7,7 @@ export function useCart() {
   return useCartStore();
 }
 
-// Evita mismatch SSR/CSR con el store persistido
+// Avoid SSR/CSR mismatch with persisted store
 export function useCartHydrated() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
