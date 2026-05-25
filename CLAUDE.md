@@ -1,4 +1,4 @@
-# CLAUDE.md — Distribuidora Grasser
+# CLAUDE.md — Distribuidora Graser
 
 Plataforma web de catálogo + carrito → WhatsApp para una tienda de electrónica y electricidad. **No es ecommerce con pagos online.** El cliente arma el pedido y la venta se cierra manualmente por WhatsApp con el dueño.
 

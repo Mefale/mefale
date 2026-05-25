@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { cn } from "@/lib/utils";
@@ -49,13 +50,19 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
               onError={() => setImgError(true)}
             />
           )}
-          {product.featured && (
-            <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {product.offer && (
+              <span className="flex items-center gap-1 rounded-md bg-[#DC2626] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+                <Zap className="h-2.5 w-2.5" strokeWidth={2.5} fill="currentColor" />
+                Oferta
+              </span>
+            )}
+            {product.featured && (
               <Badge className="bg-[#D97706] text-white border-transparent text-[10px] px-2 py-0.5 shadow-sm">
                 Destacado
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
           {product.stock === 0 && (
             <div className="absolute inset-0 bg-white/75 backdrop-blur-[1px] flex items-center justify-center">
               <Badge variant="destructive" className="text-xs">Sin stock</Badge>
@@ -82,25 +89,9 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
           </div>
 
           <div className="mt-auto pt-1">
-            {product.discountPrice ? (
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-base font-bold text-[#DC2626] tabular-nums">
-                    {formatPrice(product.discountPrice)}
-                  </span>
-                  <span className="text-[10px] font-bold text-white bg-[#DC2626] px-1.5 py-0.5 rounded">
-                    -{Math.round((1 - product.discountPrice / product.price) * 100)}%
-                  </span>
-                </div>
-                <span className="text-xs text-[#94A3B8] line-through tabular-nums">
-                  {formatPrice(product.price)}
-                </span>
-              </div>
-            ) : (
-              <span className="text-base font-bold text-[#0F172A] tabular-nums">
-                {formatPrice(product.price)}
-              </span>
-            )}
+            <span className="text-base font-bold text-[#0F172A] tabular-nums">
+              {formatPrice(product.price)}
+            </span>
           </div>
 
           <AddToCartButton product={product} />

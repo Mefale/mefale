@@ -11,6 +11,7 @@ export type Product = {
   stock: number;
   tags: string[];
   featured: boolean;
+  offer: boolean;
   createdAt: string;
   updatedAt: string;
 };

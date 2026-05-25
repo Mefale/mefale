@@ -37,17 +37,17 @@ export function Navbar() {
       {/* Hairline de acento superior */}
       <div className="h-0.5 w-full bg-gradient-to-r from-[#1A56DB] via-[#1A56DB]/40 to-transparent" />
       <Container>
-        <nav className="flex items-center justify-between h-16">
+        <nav className="grid grid-cols-[1fr_auto_1fr] items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#0F172A] group-hover:bg-[#1A56DB] transition-colors duration-300 shadow-sm">
-              <Zap className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#0F172A] group-hover:bg-[#1A56DB] transition-colors duration-300 shadow-sm">
+              <Zap className="w-5 h-5 text-white" strokeWidth={2.5} fill="currentColor" />
             </div>
-            <span className="hidden sm:flex flex-col leading-none">
-              <span className="font-bold text-[#0F172A] text-[15px] tracking-tight">
+            <span className="flex flex-col leading-none">
+              <span className="font-extrabold text-[#0F172A] text-base sm:text-[17px] tracking-tight">
                 Distribuidora Graser
               </span>
-              <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-[0.18em] mt-1">
+              <span className="mt-1 text-[9px] sm:text-[10px] font-medium text-[#64748B] uppercase tracking-[0.18em]">
                 Materiales eléctricos
               </span>
             </span>
@@ -68,7 +68,7 @@ export function Navbar() {
           </ul>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-end gap-1.5">
             <button
               onClick={openDrawer}
               aria-label={`Carrito${count > 0 ? `, ${count} productos` : ""}`}
