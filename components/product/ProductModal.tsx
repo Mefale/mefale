@@ -5,6 +5,7 @@ import Image from "next/image";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { formatPrice } from "@/utils/format-price";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -99,9 +100,20 @@ export function ProductModal({ product, onClose }: Props) {
                 <h2 className="text-base font-bold text-[#0F172A] leading-snug">
                   {product.name}
                 </h2>
-                <span className="text-xl font-extrabold text-[#0F172A] tabular-nums mt-1.5">
-                  {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(product.price)}
-                </span>
+                {product.discountPrice ? (
+                  <div className="flex flex-col gap-0.5 mt-1.5">
+                    <span className="text-xl font-extrabold text-[#0F172A] tabular-nums">
+                      {formatPrice(product.discountPrice)}
+                    </span>
+                    <span className="text-sm text-[#94A3B8] line-through tabular-nums">
+                      {formatPrice(product.price)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xl font-extrabold text-[#0F172A] tabular-nums mt-1.5">
+                    {formatPrice(product.price)}
+                  </span>
+                )}
                 <div className="mt-5 pt-4 border-t border-[#F1F5F9]">
                   <AddToCartButton product={product} />
                 </div>

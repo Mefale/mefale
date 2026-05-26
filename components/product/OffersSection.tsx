@@ -206,9 +206,20 @@ function OfferCard({
           </h3>
 
           <div className="mt-auto pt-1">
-            <span className="text-lg font-extrabold tabular-nums text-[#0F172A] leading-none">
-              {formatPrice(product.price)}
-            </span>
+            {product.discountPrice ? (
+              <div className="flex flex-col gap-0.5">
+                <span className="text-lg font-extrabold tabular-nums text-[#0F172A] leading-none">
+                  {formatPrice(product.discountPrice)}
+                </span>
+                <span className="text-xs text-[#94A3B8] line-through tabular-nums">
+                  {formatPrice(product.price)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-lg font-extrabold tabular-nums text-[#0F172A] leading-none">
+                {formatPrice(product.price)}
+              </span>
+            )}
           </div>
 
           <AddToCartButton product={product} />

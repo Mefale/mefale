@@ -37,7 +37,7 @@ export function Navbar() {
       {/* Hairline de acento superior */}
       <div className="h-0.5 w-full bg-gradient-to-r from-[#1A56DB] via-[#1A56DB]/40 to-transparent" />
       <Container>
-        <nav className="grid grid-cols-[1fr_auto_1fr] items-center h-16">
+        <nav className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#0F172A] group-hover:bg-[#1A56DB] transition-colors duration-300 shadow-sm">
@@ -45,9 +45,10 @@ export function Navbar() {
             </div>
             <span className="flex flex-col leading-none">
               <span className="font-extrabold text-[#0F172A] text-base sm:text-[17px] tracking-tight">
-                Distribuidora Graser
+                <span className="sm:hidden">Graser</span>
+                <span className="hidden sm:inline">Distribuidora Graser</span>
               </span>
-              <span className="mt-1 text-[9px] sm:text-[10px] font-medium text-[#64748B] uppercase tracking-[0.18em]">
+              <span className="hidden sm:block mt-1 text-[10px] font-medium text-[#64748B] uppercase tracking-[0.18em]">
                 Materiales eléctricos
               </span>
             </span>
