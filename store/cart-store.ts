@@ -55,7 +55,7 @@ export const useCartStore = create<CartState>()(
                 price: product.discountPrice ?? product.price,
                 image: product.images[0],
                 quantity,
-                isOffer: !!product.discountPrice,
+                isOffer: product.offer || !!product.discountPrice,
               },
             ],
           });

@@ -61,10 +61,16 @@ function rowToProduct(row: string[]): Product | null {
 export const getProducts = unstable_cache(
   async (): Promise<Product[]> => {
     const sheets = getSheetsClient();
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
-      range: RANGE,
-    });
+    let res;
+    try {
+      res = await sheets.spreadsheets.values.get(
+        { spreadsheetId: process.env.GOOGLE_SHEETS_ID, range: RANGE },
+        { timeout: 8000 }
+      );
+    } catch (err) {
+      console.error("[getProducts] Google Sheets error:", err);
+      return [];
+    }
 
     const rows = res.data.values ?? [];
     const seen = new Set<string>();

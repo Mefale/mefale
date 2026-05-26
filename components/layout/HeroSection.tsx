@@ -92,7 +92,7 @@ export function HeroSection() {
               size="lg"
               className="bg-[#1A56DB] hover:bg-[#1447C0] text-white font-semibold gap-2 h-12 px-7 shadow-md shadow-[#1A56DB]/20"
             >
-              <a href="/productos">
+              <a href="/products">
                 Ver catálogo completo
                 <ArrowRight className="w-4 h-4" />
               </a>
