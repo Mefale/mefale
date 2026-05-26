@@ -155,7 +155,7 @@ function OfferCard({
           "group relative flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-white cursor-pointer",
           "shadow-[0_4px_12px_-2px_rgba(0,0,0,0.25)]",
           "transition-all duration-300",
-          "hover:border-[#DC2626]/60 hover:shadow-[0_12px_28px_-8px_rgba(220,38,38,0.35)] hover:-translate-y-1"
+          "hover:border-[#1A56DB]/60 hover:shadow-[0_12px_28px_-8px_rgba(26,86,219,0.35)] hover:-translate-y-1"
         )}
       >
         {/* Image */}
@@ -201,7 +201,7 @@ function OfferCard({
             )}
           </div>
 
-          <h3 className="line-clamp-2 text-xs font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-[#DC2626]">
+          <h3 className="line-clamp-2 text-xs font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-[#1A56DB]">
             {product.name}
           </h3>
 

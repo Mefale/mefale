@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCart, useCartHydrated } from "@/hooks/use-cart";
 import type { Product } from "@/types/product";
@@ -29,6 +30,10 @@ export function AddToCartButton({ product, className }: Props) {
     e.stopPropagation();
     if (qty === 0) {
       add(product);
+      toast.success("Producto agregado al carrito", {
+        description: product.name,
+        duration: 1500,
+      });
     } else {
       setQuantity(product.id, qty + 1);
     }
