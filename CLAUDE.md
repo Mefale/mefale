@@ -1,4 +1,4 @@
-# CLAUDE.md — Distribuidora Grasser
+# CLAUDE.md — Distribuidora Graser
 
 Plataforma web de catálogo + carrito → WhatsApp para una tienda de electrónica y electricidad. **No es ecommerce con pagos online.** El cliente arma el pedido y la venta se cierra manualmente por WhatsApp con el dueño.
 
@@ -101,6 +101,7 @@ Skills en `.claude/skills/` para tareas recurrentes:
 - `whatsapp-message` — modificar el formato del mensaje del carrito
 - `import-products` — trabajar sobre el importador CSV/XLSX
 - `admin-feature` — agregar funcionalidad al panel admin
+- `commit` — generar mensaje de commit en inglés + instrucciones de branch/push (solo instructivo, no ejecuta nada)
 
 Cada skill tiene su `SKILL.md` con checklist y restricciones.
 

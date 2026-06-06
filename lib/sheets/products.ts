@@ -2,8 +2,8 @@ import { unstable_cache } from "next/cache";
 import { getSheetsClient } from "./client";
 import type { Product } from "@/types/product";
 
-// Columns: A=SKU, B=Category, C=Name/Description, D=Price
-const RANGE = "A2:D";
+// Columns: A=SKU, B=Category, C=Name/Description, D=Price, E=DiscountPrice, F=Offer
+const RANGE = "A2:F";
 
 function getImageUrl(sku: string): string {
   const cloud = process.env.CLOUDINARY_CLOUD_NAME;
@@ -25,7 +25,7 @@ function parsePrice(raw: string): number {
 }
 
 function rowToProduct(row: string[]): Product | null {
-  const [sku, category, name, priceRaw] = row;
+  const [sku, category, name, priceRaw, discountPriceCol, offerCol] = row;
   if (!sku?.trim() || !name?.trim()) return null;
 
   const price = parsePrice(priceRaw ?? "");
@@ -33,18 +33,26 @@ function rowToProduct(row: string[]): Product | null {
 
   const skuClean = sku.trim();
 
+  const discountPriceRaw = discountPriceCol?.trim();
+  const discountPrice =
+    discountPriceRaw ? parsePrice(discountPriceRaw) : undefined;
+
   return {
     id: skuClean.toLowerCase(),
     sku: skuClean,
     name: name.trim(),
     description: "",
     price,
+    discountPrice: discountPrice && discountPrice > 0 && discountPrice < price
+      ? discountPrice
+      : undefined,
     images: [getImageUrl(skuClean)],
     category: category?.trim() ?? "Uncategorized",
     brand: "",
     stock: 1,
     tags: [],
     featured: false,
+    offer: offerCol?.trim().toLowerCase() === "x",
     createdAt: "",
     updatedAt: "",
   };
@@ -53,10 +61,16 @@ function rowToProduct(row: string[]): Product | null {
 export const getProducts = unstable_cache(
   async (): Promise<Product[]> => {
     const sheets = getSheetsClient();
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
-      range: RANGE,
-    });
+    let res;
+    try {
+      res = await sheets.spreadsheets.values.get(
+        { spreadsheetId: process.env.GOOGLE_SHEETS_ID, range: RANGE },
+        { timeout: 8000 }
+      );
+    } catch (err) {
+      console.error("[getProducts] Google Sheets error:", err);
+      return [];
+    }
 
     const rows = res.data.values ?? [];
     const seen = new Set<string>();
