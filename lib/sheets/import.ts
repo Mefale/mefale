@@ -1,4 +1,3 @@
-import { revalidateTag } from "next/cache";
 import { getSheetsClient } from "./client";
 
 export interface ImportRow {
@@ -54,9 +53,6 @@ export async function importProductsToSheet(
       requestBody: { values: newRows },
     });
   }
-
-  revalidateTag("products");
-  revalidateTag("categories");
 
   return { total: rows.length, updated, created };
 }

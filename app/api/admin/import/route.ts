@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { importProductsToSheet, type ImportRow } from "@/lib/sheets/import";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -38,6 +39,8 @@ export async function POST(request: Request) {
 
   try {
     const result = await importProductsToSheet(parsed.data.rows as ImportRow[]);
+    revalidateTag("products");
+    revalidateTag("categories");
     return NextResponse.json(result);
   } catch (err) {
     console.error("[import] Error writing to Sheets:", err);
