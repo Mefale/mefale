@@ -89,9 +89,17 @@ export function Footer() {
             © {new Date().getFullYear()} Distribuidora Graser. Todos los
             derechos reservados.
           </p>
-          <p className="text-xs text-[#64748B]">
-            Los precios son orientativos y se confirman por WhatsApp.
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-[#64748B]">
+              Los precios son orientativos y se confirman por WhatsApp.
+            </p>
+            <Link
+              href="/admin"
+              className="text-xs text-[#334155] hover:text-[#64748B] transition-colors"
+            >
+              Admin
+            </Link>
+          </div>
         </div>
       </Container>
     </footer>

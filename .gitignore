@@ -25,6 +25,7 @@ yarn-error.log*
 *.pem
 .vercel
 .env*.local
+.claude/settings.json
 .claude/settings.local.json
 
 # Windows: metadata de archivos descargados
