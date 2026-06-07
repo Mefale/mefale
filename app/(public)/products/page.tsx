@@ -4,6 +4,7 @@ import { ProductCatalog } from "@/components/product/ProductCatalog";
 import { ProductGridSkeleton } from "@/components/product/ProductGridSkeleton";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { CategoryCombobox } from "@/components/product/CategoryCombobox";
+import { OffersSection } from "@/components/product/OffersSection";
 import { getProducts, getCategories } from "@/lib/sheets/products";
 import type { Metadata } from "next";
 
@@ -23,27 +24,36 @@ async function CatalogSection({ category }: { category?: string }) {
     getCategories(),
   ]);
 
+  const offerProducts = products.filter((p) => p.offer);
   const filtered = category
     ? products.filter((p) => p.category === category)
     : products;
 
+  const showOffers = !category && offerProducts.length > 0;
+
   return (
     <>
-      {/* Header */}
-      <div className="mb-8">
-        <SectionHeader
-          title={category ?? "Catálogo"}
-          subtitle={`${filtered.length} productos disponibles`}
-        />
-      </div>
+      {showOffers && <OffersSection products={offerProducts} />}
 
-      {/* Category filter */}
-      <div className="mb-8">
-        <CategoryCombobox categories={categories} selected={category} />
-      </div>
+      <Container>
+        <div className={showOffers ? "pt-10" : ""}>
+          {/* Header */}
+          <div className="mb-8">
+            <SectionHeader
+              title={category ?? "Catálogo"}
+              subtitle={`${filtered.length} productos disponibles`}
+            />
+          </div>
 
-      {/* Catalog: search + grid + pagination */}
-      <ProductCatalog products={filtered} />
+          {/* Category filter */}
+          <div className="mb-8">
+            <CategoryCombobox categories={categories} selected={category} />
+          </div>
+
+          {/* Catalog: search + grid + pagination */}
+          <ProductCatalog products={filtered} />
+        </div>
+      </Container>
     </>
   );
 }
@@ -52,24 +62,22 @@ export default async function ProductsPage({ searchParams }: Props) {
   const { category } = await searchParams;
 
   return (
-    <div className="pt-24 pb-16">
-      <Container>
-        <Suspense
-          key={category ?? "all"}
-          fallback={
-            <>
-              <div className="mb-8 flex flex-col gap-2">
-                <div className="h-8 w-48 rounded bg-[#F1F5F9] animate-pulse" />
-                <div className="h-4 w-40 rounded bg-[#F1F5F9] animate-pulse" />
-              </div>
-              <div className="mb-8 h-11 w-full rounded-lg bg-[#F1F5F9] animate-pulse" />
-              <ProductGridSkeleton />
-            </>
-          }
-        >
-          <CatalogSection category={category} />
-        </Suspense>
-      </Container>
+    <div className="pt-24 pb-16 overflow-x-hidden">
+      <Suspense
+        key={category ?? "all"}
+        fallback={
+          <Container>
+            <div className="mb-8 flex flex-col gap-2">
+              <div className="h-8 w-48 rounded bg-[#F1F5F9] animate-pulse" />
+              <div className="h-4 w-40 rounded bg-[#F1F5F9] animate-pulse" />
+            </div>
+            <div className="mb-8 h-11 w-full rounded-lg bg-[#F1F5F9] animate-pulse" />
+            <ProductGridSkeleton />
+          </Container>
+        }
+      >
+        <CatalogSection category={category} />
+      </Suspense>
     </div>
   );
 }
