@@ -49,17 +49,30 @@ feat(offers): improve visual style with warm gradient and flame badge
 
 ### Paso 3 — Mostrar los comandos
 
-Mostrá siempre este bloque:
+Mostrá siempre los comandos como pasos numerados, con los **archivos reales** del `git status` (no placeholders):
 
+```
+## Pasos para commitear
+
+**1. Stagear los archivos**
 ```bash
-git add -p          # revisar cambios antes de stagear (recomendado)
-# — o —
-git add <archivos>  # agregar archivos específicos
+git add app/admin/ofertas/OffersClient.tsx
+git add lib/sheets/offers.ts
+```
 
-git commit -m "<mensaje generado>"
+**2. Commitear**
+```bash
+git commit -m "feat(offers): add clear-all with confirmation and save-all banner"
+```
+
+**3. Subir**
+```bash
+git push
+```
 ```
 
 > **Nunca** usar `git add .` ni `git add -A` — puede incluir archivos sensibles o no deseados.
+> Reemplazá los nombres de archivo con los reales del `git status`, no con `<archivos>`.
 
 ---
 
@@ -101,6 +114,46 @@ git push
 # — o, si el upstream no está seteado —
 git push -u origin <nombre-del-branch-actual>
 ```
+
+---
+
+## Formato de respuesta obligatorio
+
+La respuesta SIEMPRE tiene que terminar con los pasos completos, así:
+
+---
+
+**Mensaje de commit:**
+```
+feat(scope): description
+```
+
+**Pasos:**
+
+**1. Stagear**
+```bash
+git add ruta/archivo1.tsx
+git add ruta/archivo2.ts
+```
+
+**2. Commitear**
+```bash
+git commit -m "feat(scope): description"
+```
+
+**3. Subir**
+```bash
+git push
+```
+
+> Si es la primera vez que subís este branch:
+> ```bash
+> git push -u origin <nombre-del-branch>
+> ```
+
+---
+
+No mostrar solo el mensaje de commit. Siempre incluir los 3 pasos completos con los archivos reales.
 
 ---
 
