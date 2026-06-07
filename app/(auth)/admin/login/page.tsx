@@ -29,7 +29,7 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Email o contraseña incorrectos.");
     } else {
-      router.push("/admin");
+      router.push("/admin/importar");
     }
   }
 
