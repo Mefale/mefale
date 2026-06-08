@@ -5,9 +5,9 @@ import AdminSignOut from "@/components/admin/AdminSignOut";
 import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
 
 const NAV = [
-  { href: "/admin/importar", label: "Importar productos", icon: Upload },
-  { href: "/admin/ofertas", label: "Ofertas", icon: Tag },
-  { href: "/admin/configuracion", label: "Configuración", icon: Settings },
+  { href: "/admin/import", label: "Importar productos", icon: Upload },
+  { href: "/admin/offers", label: "Ofertas", icon: Tag },
+  { href: "/admin/settings", label: "Configuración", icon: Settings },
 ];
 
 export default function AdminLayout({

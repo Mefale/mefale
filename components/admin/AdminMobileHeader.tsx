@@ -7,9 +7,9 @@ import { signOut } from "next-auth/react";
 import { Upload, Settings, Zap, Tag, Menu, X, LogOut } from "lucide-react";
 
 const NAV = [
-  { href: "/admin/importar", label: "Importar productos", icon: Upload },
-  { href: "/admin/ofertas", label: "Ofertas", icon: Tag },
-  { href: "/admin/configuracion", label: "Configuración", icon: Settings },
+  { href: "/admin/import", label: "Importar productos", icon: Upload },
+  { href: "/admin/offers", label: "Ofertas", icon: Tag },
+  { href: "/admin/settings", label: "Configuración", icon: Settings },
 ];
 
 export default function AdminMobileHeader() {
