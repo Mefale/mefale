@@ -53,15 +53,25 @@ export default function OffersClient({ products }: { products: Product[] }) {
     initRows(products)
   );
   const [confirmClear, setConfirmClear] = useState(false);
+  const [offersFirst, setOffersFirst] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    if (!q) return products;
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
-    );
-  }, [products, search]);
+    let list = q
+      ? products.filter(
+          (p) =>
+            p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
+        )
+      : [...products];
+    if (offersFirst) {
+      list = [...list].sort((a, b) =>
+        rows[b.sku].offer === rows[a.sku].offer
+          ? 0
+          : rows[b.sku].offer ? 1 : -1
+      );
+    }
+    return list;
+  }, [products, search, offersFirst, rows]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -185,18 +195,30 @@ export default function OffersClient({ products }: { products: Product[] }) {
 
   return (
     <div>
-      {/* Buscador + contador */}
-      <div className="flex items-center gap-2 mb-3">
+      {/* Buscador + controles */}
+      <div className="flex flex-col gap-2 mb-3">
         <input
           type="text"
           placeholder="Buscar por nombre o SKU…"
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
         />
-        <span className="text-xs text-gray-400 shrink-0 whitespace-nowrap">
-          {filtered.length} productos
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { setOffersFirst((v) => !v); setPage(1); }}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors whitespace-nowrap ${
+              offersFirst
+                ? "bg-gray-900 text-white border-gray-900"
+                : "border-gray-200 text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            En oferta primero
+          </button>
+          <span className="text-xs text-gray-400 ml-auto whitespace-nowrap">
+            {filtered.length} productos
+          </span>
+        </div>
       </div>
 
       {/* Quitar todas las ofertas */}
