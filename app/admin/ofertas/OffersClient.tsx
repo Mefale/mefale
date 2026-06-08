@@ -185,62 +185,63 @@ export default function OffersClient({ products }: { products: Product[] }) {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-6">
+      {/* Buscador + contador */}
+      <div className="flex items-center gap-2 mb-3">
         <input
           type="text"
           placeholder="Buscar por nombre o SKU…"
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          className="w-full max-w-sm border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
         />
-        <span className="text-xs text-gray-400 shrink-0">
+        <span className="text-xs text-gray-400 shrink-0 whitespace-nowrap">
           {filtered.length} productos
         </span>
-        {activeOfferCount > 0 && (
-          <div className="ml-auto shrink-0">
-            {confirmClear ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-red-600">
-                  ¿Quitar {activeOfferCount} ofertas y guardar?
-                </span>
-                <button
-                  onClick={handleClearAllConfirmed}
-                  className="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-                >
-                  Confirmar
-                </button>
-                <button
-                  onClick={() => setConfirmClear(false)}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setConfirmClear(true)}
-                className="text-xs text-red-500 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                Quitar todas las ofertas
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
+      {/* Quitar todas las ofertas */}
+      {activeOfferCount > 0 && (
+        <div className="mb-4">
+          {confirmClear ? (
+            <div className="flex flex-wrap items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
+              <span className="text-xs text-red-700 flex-1">
+                ¿Quitar {activeOfferCount} ofertas y guardar en el catálogo?
+              </span>
+              <button
+                onClick={handleClearAllConfirmed}
+                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={() => setConfirmClear(false)}
+                className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmClear(true)}
+              className="text-xs text-red-500 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              Quitar todas las ofertas ({activeOfferCount})
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Banner guardar todos */}
       {dirtyProducts.length > 0 && (
         <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4">
           <p className="text-sm text-amber-800">
             <span className="font-medium">{dirtyProducts.length}</span>{" "}
-            {dirtyProducts.length === 1
-              ? "producto modificado"
-              : "productos modificados"}{" "}
-            sin guardar
+            {dirtyProducts.length === 1 ? "modificado" : "modificados"} sin guardar
           </p>
           <button
             onClick={handleSaveAll}
             disabled={isSaving}
-            className="text-sm font-medium px-4 py-1.5 rounded-lg bg-amber-800 text-white hover:bg-amber-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="text-sm font-medium px-4 py-1.5 rounded-lg bg-amber-800 text-white hover:bg-amber-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
           >
             {isSaving ? "Guardando…" : "Guardar todos"}
           </button>
@@ -259,64 +260,63 @@ export default function OffersClient({ products }: { products: Product[] }) {
               return (
                 <div
                   key={p.sku}
-                  className="flex flex-wrap items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3"
+                  className="bg-white border border-gray-200 rounded-lg px-4 py-3 space-y-2"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                  {/* Nombre y SKU */}
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 leading-snug">
                       {p.name}
                     </p>
-                    <p className="text-xs text-gray-400 font-mono">
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">
                       {p.sku} · ${p.price.toLocaleString("es-AR")}
                     </p>
                   </div>
 
-                  <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                  {/* Controles */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={row.offer}
+                        onChange={(e) => {
+                          update(p.sku, {
+                            offer: e.target.checked,
+                            discountPrice: e.target.checked ? row.discountPrice : "",
+                            status: "idle",
+                          });
+                        }}
+                        className="w-4 h-4 accent-gray-900"
+                      />
+                      <span className="text-xs text-gray-600">En oferta</span>
+                    </label>
+
                     <input
-                      type="checkbox"
-                      checked={row.offer}
-                      onChange={(e) => {
-                        update(p.sku, {
-                          offer: e.target.checked,
-                          discountPrice: e.target.checked
-                            ? row.discountPrice
-                            : "",
-                          status: "idle",
-                        });
-                      }}
-                      className="w-4 h-4 accent-gray-900"
+                      type="number"
+                      min={1}
+                      placeholder="Precio oferta"
+                      value={row.discountPrice}
+                      disabled={!row.offer}
+                      onChange={(e) =>
+                        update(p.sku, { discountPrice: e.target.value, status: "idle" })
+                      }
+                      className="flex-1 min-w-0 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 disabled:opacity-40 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
-                    <span className="text-xs text-gray-600">En oferta</span>
-                  </label>
 
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="Precio oferta"
-                    value={row.discountPrice}
-                    disabled={!row.offer}
-                    onChange={(e) =>
-                      update(p.sku, {
-                        discountPrice: e.target.value,
-                        status: "idle",
-                      })
-                    }
-                    className="w-32 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 disabled:opacity-40 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  />
-
-                  <button
-                    onClick={() => handleSave(p)}
-                    disabled={!dirty || row.status === "saving"}
-                    className="shrink-0 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-gray-900 text-white hover:bg-gray-800"
-                  >
-                    {row.status === "saving"
-                      ? "Guardando…"
-                      : row.status === "saved"
-                      ? "Guardado ✓"
-                      : "Guardar"}
-                  </button>
+                    <button
+                      onClick={() => handleSave(p)}
+                      disabled={!dirty || row.status === "saving"}
+                      className="shrink-0 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-gray-900 text-white hover:bg-gray-800"
+                    >
+                      {row.status === "saving"
+                        ? "Guardando…"
+                        : row.status === "saved"
+                        ? "Guardado ✓"
+                        : "Guardar"}
+                    </button>
+                  </div>
 
                   {row.status === "error" && (
-                    <p className="text-xs text-red-500 w-full">{row.error}</p>
+                    <p className="text-xs text-red-500">{row.error}</p>
                   )}
                 </div>
               );
@@ -333,7 +333,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
                 ← Anterior
               </button>
               <span className="text-xs text-gray-500">
-                Página {currentPage} de {totalPages}
+                {currentPage} / {totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

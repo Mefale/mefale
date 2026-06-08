@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Upload, Settings, Zap, Tag } from "lucide-react";
 import SessionProviderWrapper from "@/components/admin/SessionProviderWrapper";
 import AdminSignOut from "@/components/admin/AdminSignOut";
+import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
 
 const NAV = [
   { href: "/admin/importar", label: "Importar productos", icon: Upload },
@@ -16,9 +17,13 @@ export default function AdminLayout({
 }) {
   return (
     <SessionProviderWrapper>
-      <div className="min-h-screen bg-gray-50 flex">
-        {/* Sidebar */}
-        <aside className="w-56 shrink-0 bg-white border-r border-gray-200 flex flex-col">
+      <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+
+        {/* Mobile top bar */}
+        <AdminMobileHeader />
+
+        {/* Desktop sidebar */}
+        <aside className="hidden md:flex w-56 shrink-0 bg-white border-r border-gray-200 flex-col">
           <div className="px-4 py-4 border-b border-gray-200">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0F172A] group-hover:bg-[#1A56DB] transition-colors duration-300 shrink-0">
@@ -54,8 +59,8 @@ export default function AdminLayout({
         </aside>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          <div className="flex justify-end px-8 pt-5">
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="hidden md:flex justify-end px-8 pt-5">
             <Link
               href="/"
               className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-white transition-colors"
@@ -63,8 +68,9 @@ export default function AdminLayout({
               ← Volver al sitio
             </Link>
           </div>
-          <main className="flex-1 px-8 py-6">{children}</main>
+          <main className="flex-1 px-4 py-5 md:px-8 md:py-6">{children}</main>
         </div>
+
       </div>
     </SessionProviderWrapper>
   );
