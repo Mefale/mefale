@@ -70,7 +70,23 @@ export function CartDrawer() {
     const message = buildWhatsAppMessage(items, { name }, effectiveDiscount);
     const url = buildWhatsAppUrl(message);
     window.open(url, "_blank", "noopener,noreferrer");
-    // No vaciamos el carrito — el usuario puede volver
+
+    // Fire-and-forget: registrar el pedido en Sheets sin bloquear
+    fetch("/api/track-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: name ?? "",
+        items: items.map((i) => ({
+          sku: i.sku,
+          name: i.name,
+          quantity: i.quantity,
+          price: i.price,
+        })),
+        total: subtotal() * (1 - effectiveDiscount / 100),
+        discountPercentage: effectiveDiscount,
+      }),
+    }).catch(() => {});
   }
 
   function handleToggleDiscount(checked: boolean) {
