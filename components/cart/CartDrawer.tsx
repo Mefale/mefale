@@ -15,6 +15,7 @@ import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp/build-mes
 
 const customerSchema = z.object({
   name: z.string().optional(),
+  phone: z.string().optional(),
 });
 type CustomerForm = z.infer<typeof customerSchema>;
 
@@ -65,7 +66,7 @@ export function CartDrawer() {
   }, [closeDrawer]);
 
   function handleWhatsApp() {
-    const { name } = getValues();
+    const { name, phone } = getValues();
     const effectiveDiscount = discountEnabled ? discountPercentage : 0;
     const message = buildWhatsAppMessage(items, { name }, effectiveDiscount);
     const url = buildWhatsAppUrl(message);
@@ -77,6 +78,7 @@ export function CartDrawer() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         customerName: name ?? "",
+        phone: phone ?? "-",
         items: items.map((i) => ({
           sku: i.sku,
           name: i.name,
@@ -340,6 +342,13 @@ export function CartDrawer() {
                 <input
                   {...register("name")}
                   placeholder="Tu nombre (opcional)"
+                  className="w-full bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
+                />
+                <input
+                  {...register("phone")}
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="Tu teléfono (opcional)"
                   className="w-full bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
                 />
 

@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Upload, Settings, Zap, Tag } from "lucide-react";
+import { Upload, Settings, Zap, Tag, ClipboardList } from "lucide-react";
 import SessionProviderWrapper from "@/components/admin/SessionProviderWrapper";
 import AdminSignOut from "@/components/admin/AdminSignOut";
 import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
 
 const NAV = [
+  { href: "/admin/orders", label: "Control de Pedidos", icon: ClipboardList },
   { href: "/admin/import", label: "Importar productos", icon: Upload },
   { href: "/admin/offers", label: "Ofertas", icon: Tag },
   { href: "/admin/settings", label: "Configuración", icon: Settings },

@@ -11,6 +11,7 @@ const ItemSchema = z.object({
 
 const BodySchema = z.object({
   customerName: z.string().optional().default(""),
+  phone: z.string().optional().default("-"),
   items: z.array(ItemSchema).min(1),
   total: z.number().nonnegative(),
   discountPercentage: z.number().min(0).max(100).default(0),
@@ -30,7 +31,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    await appendOrder(parsed.data);
+    await appendOrder({
+      customerName: parsed.data.customerName,
+      phone: parsed.data.phone,
+      items: parsed.data.items,
+      total: parsed.data.total,
+      discountPercentage: parsed.data.discountPercentage,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[track-order] Error writing to Sheets:", err);
