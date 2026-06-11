@@ -5,6 +5,7 @@ export interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  pending?: boolean;
 }
 
 export type OrderStatus = "Generado" | "Aprobado" | "Empaquetado" | "Cancelado";

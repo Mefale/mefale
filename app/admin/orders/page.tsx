@@ -12,7 +12,7 @@ export default async function ControlPedidosPage() {
       <div>
         <h1 className="text-xl font-bold text-[#0F172A]">Control de Pedidos</h1>
         <p className="text-sm text-[#64748B] mt-0.5">
-          Pedidos recibidos por WhatsApp — {orders.length} en total
+          Pedidos recibidos por WhatsApp
         </p>
       </div>
       <OrdersClient initialOrders={orders} products={products} />

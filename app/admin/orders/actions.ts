@@ -10,6 +10,7 @@ const ItemSchema = z.object({
   name: z.string(),
   quantity: z.number().int().positive(),
   price: z.number().nonnegative(),
+  pending: z.boolean().optional(),
 });
 
 const PatchSchema = z.object({
