@@ -56,8 +56,7 @@ Mostrá siempre los comandos como pasos numerados, con los **archivos reales** d
 
 **1. Stagear los archivos**
 ```bash
-git add app/admin/ofertas/OffersClient.tsx
-git add lib/sheets/offers.ts
+git add app/admin/ofertas/OffersClient.tsx lib/sheets/offers.ts
 ```
 
 **2. Commitear**
@@ -72,6 +71,7 @@ git push
 ```
 
 > **Nunca** usar `git add .` ni `git add -A` — puede incluir archivos sensibles o no deseados.
+> Listá todos los archivos en **una sola línea** `git add archivo1 archivo2 …` — más compacto y seguro.
 > Reemplazá los nombres de archivo con los reales del `git status`, no con `<archivos>`.
 
 ---
@@ -132,8 +132,7 @@ feat(scope): description
 
 **1. Stagear**
 ```bash
-git add ruta/archivo1.tsx
-git add ruta/archivo2.ts
+git add ruta/archivo1.tsx ruta/archivo2.ts
 ```
 
 **2. Commitear**

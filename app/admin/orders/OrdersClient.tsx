@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, Fragment } from "react";
+import { motion } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
@@ -14,6 +15,10 @@ import {
   Plus,
   Save,
   Search,
+  DollarSign,
+  FileText,
+  PackageX,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -71,22 +76,36 @@ function offsetDate(days: number): string {
 // ─── KPI Bar ─────────────────────────────────────────────────────────────────
 
 function KpiItem({
+  icon: Icon,
   label,
   value,
   valueColor,
+  iconColor,
 }: {
+  icon: typeof DollarSign;
   label: string;
   value: string;
   valueColor?: string;
+  iconColor?: string;
 }) {
   return (
-    <div className="bg-white px-4 py-3 flex flex-col gap-0.5">
-      <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
-        {label}
+    <div className="flex items-center gap-3 px-4 py-3.5">
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white border border-[#E2E8F0] shadow-sm",
+          iconColor ?? "text-[#1A56DB]"
+        )}
+      >
+        <Icon className="h-4 w-4" strokeWidth={2.25} />
       </span>
-      <span className={cn("text-base font-bold text-[#0F172A]", valueColor)}>
-        {value}
-      </span>
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider truncate">
+          {label}
+        </span>
+        <span className={cn("text-lg font-bold text-[#0F172A] tabular-nums leading-none", valueColor)}>
+          {value}
+        </span>
+      </div>
     </div>
   );
 }
@@ -104,22 +123,42 @@ function KpiBar({ orders }: { orders: Order[] }) {
   const listosParaEnviar = orders.filter((o) => o.status === "Empaquetado").length;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100 rounded-xl border border-gray-200 overflow-hidden">
-      <KpiItem label="Total del dia" value={formatPrice(totalDia)} />
-      <KpiItem
-        label="Generados"
-        value={`${generados} pedido${generados !== 1 ? "s" : ""}`}
+    <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-gradient-to-br from-[#F8FAFC] via-white to-[#EFF4FE] shadow-[0_24px_54px_-26px_rgba(26,86,219,0.25)]">
+      {/* Decoración técnica */}
+      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-[#1D4ED8] opacity-[0.07] blur-[110px]" />
+      <div className="pointer-events-none absolute -bottom-28 -left-12 h-56 w-56 rounded-full bg-[#0284C7] opacity-[0.06] blur-[110px]" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.4]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(26,86,219,0.06) 1px, transparent 1px), linear-gradient(to right, rgba(26,86,219,0.06) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          maskImage: "radial-gradient(ellipse 80% 100% at 50% 0%, black 30%, transparent 75%)",
+        }}
       />
-      <KpiItem
-        label="Pendientes de stock"
-        value={`${pendienteStock} producto${pendienteStock !== 1 ? "s" : ""}`}
-        valueColor={pendienteStock > 0 ? "text-amber-600" : undefined}
-      />
-      <KpiItem
-        label="Listos para enviar"
-        value={`${listosParaEnviar} pedido${listosParaEnviar !== 1 ? "s" : ""}`}
-        valueColor={listosParaEnviar > 0 ? "text-green-600" : undefined}
-      />
+
+      <div className="relative grid grid-cols-2 sm:grid-cols-4 divide-y divide-x divide-[#E2E8F0]/70 sm:divide-y-0">
+        <KpiItem icon={DollarSign} label="Total del día" value={formatPrice(totalDia)} />
+        <KpiItem
+          icon={FileText}
+          label="Generados"
+          value={`${generados} pedido${generados !== 1 ? "s" : ""}`}
+        />
+        <KpiItem
+          icon={PackageX}
+          label="Pendientes de stock"
+          value={`${pendienteStock} producto${pendienteStock !== 1 ? "s" : ""}`}
+          valueColor={pendienteStock > 0 ? "text-[#D97706]" : undefined}
+          iconColor={pendienteStock > 0 ? "text-[#D97706]" : undefined}
+        />
+        <KpiItem
+          icon={Send}
+          label="Listos para enviar"
+          value={`${listosParaEnviar} pedido${listosParaEnviar !== 1 ? "s" : ""}`}
+          valueColor={listosParaEnviar > 0 ? "text-[#16A34A]" : undefined}
+          iconColor={listosParaEnviar > 0 ? "text-[#16A34A]" : undefined}
+        />
+      </div>
     </div>
   );
 }
@@ -214,9 +253,31 @@ function DatePickerPopover({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+8px)] z-50 flex bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden w-[480px]">
-          <div className="w-36 shrink-0 bg-gray-50 border-r border-gray-100 p-3 flex flex-col gap-1">
-            <p className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+        <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden w-[min(320px,calc(100vw-1rem))] sm:w-[480px] sm:flex">
+          {/* Shortcuts — horizontal scroll en mobile, sidebar en sm+ */}
+          <div className="sm:w-36 sm:shrink-0 sm:bg-gray-50 sm:border-r sm:border-gray-100 sm:p-3 sm:flex sm:flex-col sm:gap-1">
+            {/* Mobile: chips horizontales */}
+            <div className="flex gap-1.5 overflow-x-auto px-3 pt-3 pb-2 sm:hidden scrollbar-none">
+              {SHORTCUTS.map((s) => {
+                const v = s.get();
+                return (
+                  <button
+                    key={s.label}
+                    onClick={() => select(v)}
+                    className={cn(
+                      "shrink-0 text-xs px-2.5 py-1.5 rounded-full border transition-colors whitespace-nowrap",
+                      value === v
+                        ? "bg-[#0F172A] text-white border-[#0F172A]"
+                        : "text-[#374151] border-gray-200 hover:bg-gray-100"
+                    )}
+                  >
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Desktop: lista vertical */}
+            <p className="hidden sm:block text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Accesos rápidos
             </p>
             {SHORTCUTS.map((s) => {
@@ -226,7 +287,7 @@ function DatePickerPopover({
                   key={s.label}
                   onClick={() => select(v)}
                   className={cn(
-                    "text-left text-sm px-2.5 py-1.5 rounded-lg transition-colors",
+                    "hidden sm:block text-left text-sm px-2.5 py-1.5 rounded-lg transition-colors",
                     value === v
                       ? "bg-[#0F172A] text-white font-medium"
                       : "text-[#374151] hover:bg-gray-200"
@@ -434,62 +495,73 @@ function OrderCard({
 
   return (
     <div className={cn(
-      "bg-white rounded-xl border border-gray-200 border-l-4 transition-shadow overflow-hidden",
+      "bg-white rounded-xl border border-[#E2E8F0] border-l-4 overflow-hidden transition-all duration-300",
       isLegacy
         ? "border-dashed border-gray-300 border-l-gray-300"
-        : cn("shadow-sm hover:shadow-md", statusBorder(status))
+        : cn(
+            "shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)]",
+            statusBorder(status)
+          )
     )}>
       {/* ── Card header ── */}
-      <div className="px-4 py-3 flex items-start justify-between gap-3">
-        {/* Left: order number + name + phone + badges + meta line */}
-        <div className="flex flex-col gap-1 min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-mono text-[#94A3B8] shrink-0">
+      <div className="px-4 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        {/* Info: order number + name + phone + badges + meta line */}
+        <div className="flex flex-col gap-1 min-w-0 sm:flex-1">
+          {/* Name row */}
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="text-[11px] font-mono text-[#64748B] shrink-0 bg-[#F1F5F9] rounded-md px-1.5 py-0.5">
               #{orderNum}
             </span>
-            <span className="font-semibold text-[#0F172A]">
+            <span className="font-semibold text-[#0F172A] truncate">
               {customerName ?? "Sin nombre"}
             </span>
-            {hasPhone && (
-              <span className="flex items-center gap-1 text-xs text-[#64748B]">
-                <Phone className="w-3 h-3" />
-                {order.phone}
-              </span>
-            )}
             {hasPending && (
-              <span className="flex items-center gap-1 text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded font-medium border border-amber-200 whitespace-nowrap">
-                <Clock className="w-3 h-3" />
+              <span className="flex items-center gap-1.5 text-[10px] bg-[#FEE2E2] text-[#B91C1C] px-1.5 py-0.5 rounded-full font-semibold uppercase tracking-wide border border-[#DC2626]/25 whitespace-nowrap shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#DC2626] animate-pulse" />
                 {pendingItems.length} sin stock
               </span>
             )}
             {isLegacy && (
-              <span className="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-medium border border-gray-200">
+              <span className="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-medium border border-gray-200 shrink-0">
                 Legacy
               </span>
             )}
           </div>
 
-          {/* Meta line: time · N productos · item1 × qty · item2 × qty */}
-          <div className="flex items-center gap-1 text-xs text-[#94A3B8] flex-wrap">
-            <Clock className="w-3 h-3 shrink-0" />
-            <span>{order.time}</span>
-            <span className="mx-0.5">·</span>
-            <span>{items.length} producto{items.length !== 1 ? "s" : ""}</span>
-            {previewItems.map((item, i) => (
-              <Fragment key={i}>
-                <span className="mx-0.5">·</span>
-                <span className="text-[#64748B] truncate max-w-[140px]">
-                  {item.name} × {item.quantity}
+          {/* Meta line: time · N productos · (preview items en sm+) */}
+          <div className="flex items-center gap-1.5 text-xs text-[#94A3B8] min-w-0">
+            {hasPhone && (
+              <>
+                <span className="flex items-center gap-1 shrink-0 text-[#64748B]">
+                  <Phone className="w-3 h-3" />
+                  {order.phone}
                 </span>
-              </Fragment>
-            ))}
+                <span className="shrink-0">·</span>
+              </>
+            )}
+            <Clock className="w-3 h-3 shrink-0" />
+            <span className="shrink-0">{order.time}</span>
+            <span className="shrink-0">·</span>
+            <span className="shrink-0">{items.length} producto{items.length !== 1 ? "s" : ""}</span>
+            {/* Preview de items: solo en pantallas grandes para no romper en mobile */}
+            <span className="hidden sm:flex items-center gap-1.5 min-w-0">
+              {previewItems.map((item, i) => (
+                <Fragment key={i}>
+                  <span className="shrink-0">·</span>
+                  <span className="text-[#64748B] truncate max-w-[140px]">
+                    {item.name} × {item.quantity}
+                  </span>
+                </Fragment>
+              ))}
+            </span>
           </div>
         </div>
 
-        {/* Right: status pill + price block + actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Controls: status pill + price block + actions.
+            En mobile: fila completa con justify-between. En sm+: a la derecha. */}
+        <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-end">
           {/* Status select with colored dot */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <span className={cn(
               "absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none z-10",
               statusDot(status)
@@ -512,43 +584,45 @@ function OrderCard({
             <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-40" />
           </div>
 
-          {/* Price + item count */}
-          <div className="text-right min-w-[64px]">
-            <div className="text-sm font-bold text-[#0F172A] tabular-nums whitespace-nowrap">
-              {formatPrice(computedTotal)}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Price + item count */}
+            <div className="text-right">
+              <div className="text-sm font-bold text-[#0F172A] tabular-nums whitespace-nowrap">
+                {formatPrice(computedTotal)}
+              </div>
+              <div className="text-[10px] text-[#94A3B8] tabular-nums">
+                {items.length} item{items.length !== 1 ? "s" : ""}
+              </div>
             </div>
-            <div className="text-[10px] text-[#94A3B8] tabular-nums">
-              {items.length} item{items.length !== 1 ? "s" : ""}
-            </div>
+
+            {/* WhatsApp / Copy — icon only */}
+            {hasPhone ? (
+              <button
+                onClick={handleResend}
+                title="Reenviar pedido al cliente por WhatsApp"
+                className="p-1.5 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                onClick={handleCopy}
+                title="Copiar pedido al portapapeles"
+                className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            )}
+
+            {/* Expand toggle */}
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              aria-label={expanded ? "Contraer" : "Expandir"}
+              className="p-1.5 rounded-lg text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
           </div>
-
-          {/* WhatsApp / Copy — icon only */}
-          {hasPhone ? (
-            <button
-              onClick={handleResend}
-              title="Reenviar pedido al cliente por WhatsApp"
-              className="p-1.5 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-            </button>
-          ) : (
-            <button
-              onClick={handleCopy}
-              title="Copiar pedido al portapapeles"
-              className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-            </button>
-          )}
-
-          {/* Expand toggle */}
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            aria-label={expanded ? "Contraer" : "Expandir"}
-            className="p-1.5 rounded-lg text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
         </div>
       </div>
 
@@ -800,30 +874,34 @@ export default function OrdersClient({
       <KpiBar orders={byDate} />
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2 flex-wrap">
-          {visibleTabs.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={cn(
-                "text-xs font-medium px-3 py-1.5 rounded-full border transition-colors",
-                filter === f
-                  ? "bg-[#0F172A] text-white border-[#0F172A]"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-              )}
-            >
-              {f}
-              <span className={cn("ml-1.5 tabular-nums", filter === f ? "opacity-60" : "opacity-50")}>
-                {counts[f]}
-              </span>
-            </button>
-          ))}
+      <div className="flex items-center gap-3">
+        {/* Tabs — scroll horizontal en mobile */}
+        <div className="flex-1 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-2 w-max">
+            {visibleTabs.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "text-xs font-medium px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap",
+                  filter === f
+                    ? "bg-[#0F172A] text-white border-[#0F172A]"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                )}
+              >
+                {f}
+                <span className={cn("ml-1.5 tabular-nums", filter === f ? "opacity-60" : "opacity-50")}>
+                  {counts[f]}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Date picker — siempre a la derecha */}
+        <div className="flex items-center gap-3 shrink-0">
           {filtered.length > 0 && (
-            <span className="text-xs text-[#94A3B8]">
+            <span className="hidden sm:block text-xs text-[#94A3B8]">
               {filtered.length} pedido{filtered.length !== 1 ? "s" : ""}
             </span>
           )}
@@ -847,13 +925,19 @@ export default function OrdersClient({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {filtered.map((order) => (
-            <OrderCard
+          {filtered.map((order, index) => (
+            <motion.div
               key={order.id || `${order.date}-${order.time}-${order.customerName}`}
-              order={order}
-              products={products}
-              onStatusChange={handleStatusChange}
-            />
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.4), ease: "easeOut" }}
+            >
+              <OrderCard
+                order={order}
+                products={products}
+                onStatusChange={handleStatusChange}
+              />
+            </motion.div>
           ))}
         </div>
       )}
