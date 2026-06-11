@@ -6,11 +6,12 @@ import { motion } from "framer-motion";
 import { ArrowRight, Zap, ShieldCheck, Truck, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
+import { cn } from "@/lib/utils";
 
 const brands = [
   { name: "Argenplas", logo: "/brands/argenplas.png" },
   { name: "Jeluz",     logo: "/brands/jeluz.png" },
-  { name: "Kalop",     logo: "/brands/kalop.png" },
+  { name: "Kalop",     logo: "/brands/kalop.png", scale: "scale-150" },
   { name: "Re-Flex",   logo: "/brands/re-flex.png" },
   { name: "Sica",      logo: "/brands/sica.png" },
   { name: "Dayton",    logo: "/brands/dayton.png" },
@@ -119,15 +120,15 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.26, ease: "easeOut" }}
-            className="mt-10 flex flex-wrap gap-x-6 gap-y-3"
+            className="mt-10 grid grid-cols-3 gap-3 sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-3"
           >
             {features.map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex items-center gap-2 text-sm font-medium text-[#475569]"
+                className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:text-left sm:gap-2 text-xs sm:text-sm font-medium text-[#475569]"
               >
-                <span className="flex items-center justify-center w-7 h-7 rounded-md bg-white border border-[#E2E8F0] shadow-sm">
-                  <Icon className="w-3.5 h-3.5 text-[#1A56DB]" />
+                <span className="flex items-center justify-center w-8 h-8 sm:w-7 sm:h-7 rounded-md bg-white border border-[#E2E8F0] shadow-sm shrink-0">
+                  <Icon className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#1A56DB]" />
                 </span>
                 {label}
               </div>
@@ -144,19 +145,21 @@ export function HeroSection() {
             <p className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-[0.2em] mb-5">
               Marcas que distribuimos
             </p>
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-5">
+            <div className="grid grid-cols-3 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-5">
               {brands.map((brand) => (
                 <div
                   key={brand.name}
-                  className="relative h-7 w-24"
+                  className="flex items-center justify-center bg-white rounded-lg border border-[#E2E8F0] px-3 py-2.5 sm:bg-transparent sm:border-0 sm:p-0 sm:block sm:relative sm:h-7 sm:w-24"
                 >
-                  <Image
-                    src={brand.logo}
-                    alt={brand.name}
-                    fill
-                    sizes="96px"
-                    className="object-contain object-left"
-                  />
+                  <div className="relative h-7 w-full sm:h-full sm:w-full">
+                    <Image
+                      src={brand.logo}
+                      alt={brand.name}
+                      fill
+                      sizes="(max-width: 640px) 33vw, 96px"
+                      className={cn("object-contain", brand.scale)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

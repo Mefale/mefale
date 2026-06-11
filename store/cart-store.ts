@@ -11,6 +11,8 @@ type CartState = {
   items: CartItem[];
   isDrawerOpen: boolean;
   discountPercentage: number;
+  customerName: string;
+  customerPhone: string;
 
   add: (product: Product, quantity?: number) => void;
   remove: (id: string) => void;
@@ -19,6 +21,8 @@ type CartState = {
   openDrawer: () => void;
   closeDrawer: () => void;
   setDiscountPercentage: (value: number) => void;
+  setCustomerName: (value: string) => void;
+  setCustomerPhone: (value: string) => void;
 
   subtotal: () => number;
   itemCount: () => number;
@@ -30,6 +34,8 @@ export const useCartStore = create<CartState>()(
       items: [],
       isDrawerOpen: false,
       discountPercentage: 0,
+      customerName: "",
+      customerPhone: "",
 
       add: (product, quantity = 1) => {
         const { items } = get();
@@ -87,6 +93,9 @@ export const useCartStore = create<CartState>()(
         set({ discountPercentage: Math.max(0, Math.min(100, safe)) });
       },
 
+      setCustomerName: (value) => set({ customerName: value }),
+      setCustomerPhone: (value) => set({ customerPhone: value }),
+
       subtotal: () =>
         get().items.reduce((acc, i) => acc + i.price * i.quantity, 0),
 
@@ -96,7 +105,11 @@ export const useCartStore = create<CartState>()(
     {
       name: "grasser-cart-v1",
       // Don't persist drawer state
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({
+        items: state.items,
+        customerName: state.customerName,
+        customerPhone: state.customerPhone,
+      }),
     }
   )
 );

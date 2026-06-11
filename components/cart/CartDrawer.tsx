@@ -15,6 +15,7 @@ import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp/build-mes
 
 const customerSchema = z.object({
   name: z.string().optional(),
+  phone: z.string().optional(),
 });
 type CustomerForm = z.infer<typeof customerSchema>;
 
@@ -30,6 +31,10 @@ export function CartDrawer() {
     itemCount,
     discountPercentage,
     setDiscountPercentage,
+    customerName,
+    customerPhone,
+    setCustomerName,
+    setCustomerPhone,
   } = useCart();
   const hydrated = useCartHydrated();
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -37,9 +42,18 @@ export function CartDrawer() {
   const [discountEnabled, setDiscountEnabled] = useState(false);
   const [discountInput, setDiscountInput] = useState("");
 
-  const { register, getValues } = useForm<CustomerForm>({
+  const { register, getValues, setValue } = useForm<CustomerForm>({
     resolver: zodResolver(customerSchema),
   });
+
+  // Sync store → form cuando el store hidrata desde localStorage
+  useEffect(() => {
+    if (hydrated) {
+      setValue("name", customerName);
+      setValue("phone", customerPhone);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   const handleImgError = (itemId: string) => {
     setImgErrors(prev => new Set([...prev, itemId]));
@@ -65,7 +79,9 @@ export function CartDrawer() {
   }, [closeDrawer]);
 
   function handleWhatsApp() {
-    const { name } = getValues();
+    const { name, phone } = getValues();
+    setCustomerName(name ?? "");
+    setCustomerPhone(phone ?? "");
     const effectiveDiscount = discountEnabled ? discountPercentage : 0;
     const message = buildWhatsAppMessage(items, { name }, effectiveDiscount);
     const url = buildWhatsAppUrl(message);
@@ -77,6 +93,7 @@ export function CartDrawer() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         customerName: name ?? "",
+        phone: phone ?? "-",
         items: items.map((i) => ({
           sku: i.sku,
           name: i.name,
@@ -337,11 +354,22 @@ export function CartDrawer() {
                 )}
 
                 {/* Datos opcionales */}
-                <input
-                  {...register("name")}
-                  placeholder="Tu nombre (opcional)"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    {...register("name")}
+                    placeholder="Tu nombre"
+                    onBlur={(e) => setCustomerName(e.target.value)}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
+                  />
+                  <input
+                    {...register("phone")}
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="Tu teléfono"
+                    onBlur={(e) => setCustomerPhone(e.target.value)}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
+                  />
+                </div>
 
                 {/* WhatsApp CTA */}
                 <div className="rounded-lg bg-white border border-[#E2E8F0] px-3 py-1.5 text-[11px] text-[#64748B] text-center leading-snug">
