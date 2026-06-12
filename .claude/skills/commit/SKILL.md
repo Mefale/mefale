@@ -23,6 +23,7 @@ git log -5 --oneline
 Usá el resultado para:
 - Identificar qué archivos cambiaron y qué tipo de cambio es (feat, fix, style, refactor, chore…)
 - Redactar el mensaje de commit en inglés siguiendo **Conventional Commits**
+- **Revisar los archivos untracked**: si algún archivo de `public/` u otra carpeta de assets aparece como untracked Y es referenciado en los archivos modificados (por ejemplo, una imagen usada en un componente), **incluirlo en el commit**. No asumir que los untracked son irrelevantes.
 
 ### Paso 2 — Redactar el commit message
 
