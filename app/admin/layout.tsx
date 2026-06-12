@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Upload, Settings, Zap, Tag, ClipboardList } from "lucide-react";
+import Image from "next/image";
+import { Upload, Settings, Tag, ClipboardList } from "lucide-react";
 import SessionProviderWrapper from "@/components/admin/SessionProviderWrapper";
 import AdminSignOut from "@/components/admin/AdminSignOut";
 import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
@@ -26,18 +27,18 @@ export default function AdminLayout({
         {/* Desktop sidebar */}
         <aside className="hidden md:flex w-56 shrink-0 bg-white border-r border-gray-200 flex-col">
           <div className="px-4 py-4 border-b border-gray-200">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0F172A] group-hover:bg-[#1A56DB] transition-colors duration-300 shrink-0">
-                <Zap className="w-4 h-4 text-white" strokeWidth={2.5} fill="currentColor" />
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="font-extrabold text-[#0F172A] text-[13px] tracking-tight">
-                  Distribuidora Graser
-                </span>
-                <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-[0.16em] mt-0.5">
-                  Admin
-                </span>
-              </div>
+            <Link href="/" className="flex flex-col items-center gap-1 group">
+              <Image
+                src="/dgs-logo-blue-recolor.png"
+                alt="Distribuidora Graser"
+                width={180}
+                height={72}
+                className="h-20 w-auto object-contain"
+                priority
+              />
+              <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-[0.18em]">
+                Administración
+              </span>
             </Link>
           </div>
 
