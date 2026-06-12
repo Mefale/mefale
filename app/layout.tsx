@@ -18,8 +18,14 @@ export const metadata: Metadata = {
     default: "Distribuidora Graser | Materiales Electricos e Iluminacion",
     template: "%s | Distribuidora Graser",
   },
-  description:
-    "Distribuidora de materiales electricos e iluminacion.",
+  description: "Distribuidora de materiales electricos e iluminacion.",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-512.png", sizes: "512x512", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
