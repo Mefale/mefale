@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Distribuidora Graser | Electrónica y Electricidad",
+    default: "Distribuidora Graser | Materiales Electricos e Iluminacion",
     template: "%s | Distribuidora Graser",
   },
   description:
