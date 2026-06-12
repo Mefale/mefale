@@ -65,7 +65,7 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
   * {
     border-color: #E2E8F0;

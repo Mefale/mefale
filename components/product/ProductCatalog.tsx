@@ -42,7 +42,7 @@ export function ProductCatalog({ products }: Props) {
   return (
     <>
       {/* Search bar — sticky para catálogos largos */}
-      <div className="sticky top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 mb-5 bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0]">
+      <div className="sticky top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 mb-5 bg-white border-b border-[#E2E8F0]">
         <div className="relative w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
           <input
