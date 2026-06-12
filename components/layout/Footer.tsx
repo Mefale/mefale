@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Zap, MessageCircle } from "lucide-react";
+import Image from "next/image";
+import { MessageCircle } from "lucide-react";
 import { Container } from "./Container";
 
 export function Footer() {
@@ -12,19 +13,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#1A56DB] shadow-sm">
-                <Zap className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="font-bold text-white text-[15px] tracking-tight">
-                  Distribuidora Graser
-                </span>
-                <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-[0.18em] mt-1">
-                  Materiales eléctricos
-                </span>
-              </div>
-            </div>
+            <Image
+              src="/dgs-logo-blue-recolor.png"
+              alt="Distribuidora Graser"
+              width={140}
+              height={56}
+              className="h-10 w-auto object-contain brightness-0 invert"
+            />
             <p className="text-sm leading-relaxed max-w-xs">
               Distribuidor de materiales eléctricos e iluminación. Calidad
               profesional para instaladores y técnicos.
