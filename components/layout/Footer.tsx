@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 import { Container } from "./Container";
 
@@ -13,13 +12,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <Image
-              src="/dgs-logo-blue-recolor.png"
-              alt="Distribuidora Graser"
-              width={140}
-              height={56}
-              className="h-10 w-auto object-contain brightness-0 invert"
-            />
+            <span className="font-bold text-white text-xl tracking-tight">
+              Distribuidora Graser
+            </span>
             <p className="text-sm leading-relaxed max-w-xs">
               Distribuidor de materiales eléctricos e iluminación. Calidad
               profesional para instaladores y técnicos.
