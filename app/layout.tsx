@@ -20,11 +20,8 @@ export const metadata: Metadata = {
   },
   description: "Distribuidora de materiales electricos e iluminacion.",
   icons: {
-    icon: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [{ url: "/icon-512.png", sizes: "512x512", type: "image/png" }],
+    icon: [{ url: "/dgs-orbit-icon-512.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/dgs-orbit-icon-512.png", sizes: "512x512", type: "image/png" }],
   },
 };
 
