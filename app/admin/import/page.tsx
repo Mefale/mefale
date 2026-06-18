@@ -145,14 +145,12 @@ export default function ImportarPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-        Importar productos
-      </h1>
-      <p className="text-sm text-gray-500 mb-8">
-        Subí el Excel diario. Se actualizan SKU, familia, descripción y precio.
-        Los campos <strong>Precio de Descuento</strong> y <strong>Oferta</strong>{" "}
-        no se tocan.
-      </p>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-[#0F172A]">Importar productos</h1>
+        <p className="text-sm text-[#64748B] mt-0.5">
+          Subí el Excel diario. Se actualizan SKU, familia, descripción y precio. Los campos <strong>Precio de Descuento</strong> y <strong>Oferta</strong> no se tocan.
+        </p>
+      </div>
 
       {/* Upload */}
       {(stage === "idle" || stage === "error") && (
@@ -160,7 +158,7 @@ export default function ImportarPage() {
           <p className="text-gray-500 text-sm mb-4">
             Seleccioná el archivo <strong>.xlsx</strong>
           </p>
-          <label className="inline-block cursor-pointer bg-gray-900 text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+          <label className="inline-block cursor-pointer bg-[#1A56DB] text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-[#1447C0] transition-colors">
             Elegir archivo
             <input
               ref={fileRef}

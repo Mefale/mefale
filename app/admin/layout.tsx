@@ -1,17 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Upload, Settings, Tag, ClipboardList, Package } from "lucide-react";
 import SessionProviderWrapper from "@/components/admin/SessionProviderWrapper";
 import AdminSignOut from "@/components/admin/AdminSignOut";
 import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
-
-const NAV = [
-  { href: "/admin/orders", label: "Control de Pedidos", icon: ClipboardList },
-  { href: "/admin/products", label: "Productos", icon: Package },
-  { href: "/admin/import", label: "Importar productos", icon: Upload },
-  { href: "/admin/offers", label: "Ofertas", icon: Tag },
-  { href: "/admin/settings", label: "Configuración", icon: Settings },
-];
+import AdminNav from "@/components/admin/AdminNav";
+import { Toaster } from "sonner";
 
 export default function AdminLayout({
   children,
@@ -37,24 +30,13 @@ export default function AdminLayout({
                 className="h-20 w-auto object-contain"
                 priority
               />
-              <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-[0.18em]">
+              <span className="text-[10px] font-medium text-[#475569] uppercase tracking-[0.18em]">
                 Administración
               </span>
             </Link>
           </div>
 
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {NAV.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                {label}
-              </Link>
-            ))}
-          </nav>
+          <AdminNav />
 
           <div className="px-5 py-4 border-t border-gray-200">
             <AdminSignOut />
@@ -75,6 +57,7 @@ export default function AdminLayout({
         </div>
 
       </div>
+      <Toaster position="bottom-right" richColors />
     </SessionProviderWrapper>
   );
 }

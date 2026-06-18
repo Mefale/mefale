@@ -5,7 +5,8 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Zap, Lock, ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import { Lock, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,12 +30,12 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Email o contraseña incorrectos.");
     } else {
-      router.push("/admin/import");
+      router.push("/admin/orders");
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 md:pb-24">
       {/* Hairline superior */}
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#1A56DB] via-[#1A56DB]/40 to-transparent" />
 
@@ -55,13 +56,15 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#0F172A] shadow-sm mb-4">
-            <Zap className="w-6 h-6 text-white" strokeWidth={2.5} fill="currentColor" />
-          </div>
-          <h1 className="text-gray-900 font-bold text-xl tracking-tight">
-            Distribuidora Graser
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">Panel de administración</p>
+          <Image
+            src="/dgs-logo-blue-recolor.png"
+            alt="Distribuidora Graser"
+            width={320}
+            height={128}
+            className="h-32 w-auto object-contain mb-2"
+            priority
+          />
+          <p className="text-gray-500 text-sm">Panel de administración</p>
         </div>
 
         {/* Card */}

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 50;
 
@@ -126,6 +127,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
       }
 
       if (result.success) {
+        toast.success(modal.mode === "create" ? "Producto creado" : "Cambios guardados");
         closeModal();
         router.refresh();
       } else {
@@ -140,6 +142,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
     startTransition(async () => {
       const result = await deleteProductAction(deleteTarget.sku);
       if (result.success) {
+        toast.success("Producto eliminado");
         setDeleteTarget(null);
         router.refresh();
       } else {
@@ -156,8 +159,8 @@ export default function ProductsClient({ products }: { products: Product[] }) {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Productos</h1>
-          <p className="text-sm text-gray-500">{products.length} productos en total</p>
+          <h1 className="text-xl font-bold text-[#0F172A]">Productos</h1>
+          <p className="text-sm text-[#64748B] mt-0.5">{products.length} productos en total</p>
         </div>
         <Button onClick={openCreate} size="sm" className="gap-1.5">
           <Plus className="w-4 h-4" />
@@ -183,13 +186,14 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                 <th className="text-left px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Categoría</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Nombre</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Precio</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Oferta</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-gray-400 text-sm">
+                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400 text-sm">
                     {search ? "Sin resultados para esa búsqueda." : "No hay productos cargados."}
                   </td>
                 </tr>
@@ -201,6 +205,22 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                     <td className="px-4 py-3 text-gray-900">{product.name}</td>
                     <td className="px-4 py-3 text-right text-gray-900 whitespace-nowrap font-medium">
                       ${product.price.toLocaleString("es-AR")}
+                    </td>
+                    <td className="px-4 py-3 text-center whitespace-nowrap">
+                      {product.offer ? (
+                        <span className="inline-flex flex-col items-center gap-0.5">
+                          <span className="text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5">
+                            Oferta
+                          </span>
+                          {product.discountPrice && (
+                            <span className="text-xs text-orange-500">
+                              ${product.discountPrice.toLocaleString("es-AR")}
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
