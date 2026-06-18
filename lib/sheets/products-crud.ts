@@ -1,4 +1,5 @@
-import { revalidateTag } from "next/cache";
+import { revalidateTag as _revalidateTag } from "next/cache";
+const revalidateTag = _revalidateTag as (tag: string) => void;
 import { getSheetsClient } from "./client";
 
 type ProductInput = {

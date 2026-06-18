@@ -27,7 +27,7 @@ export async function createProductAction(
 
   const parsed = ProductSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message };
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
   return createProduct(parsed.data);
@@ -43,7 +43,7 @@ export async function updateProductAction(
 
   const parsed = UpdateSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message };
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
   return updateProduct(sku, parsed.data);
