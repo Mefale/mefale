@@ -7,8 +7,8 @@ import { Upload, Tag, ClipboardList, Package } from "lucide-react";
 const NAV = [
   { href: "/admin/orders", label: "Control de Pedidos", icon: ClipboardList },
   { href: "/admin/products", label: "Productos", icon: Package },
-  { href: "/admin/import", label: "Importar productos", icon: Upload },
   { href: "/admin/offers", label: "Ofertas", icon: Tag },
+  { href: "/admin/import", label: "Importar productos", icon: Upload },
 ];
 
 export default function AdminNav() {
