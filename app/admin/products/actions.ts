@@ -8,7 +8,7 @@ const ProductSchema = z.object({
   sku:      z.string().min(1, "SKU requerido"),
   category: z.string().min(1, "Categoría requerida"),
   name:     z.string().min(1, "Nombre requerido"),
-  price:    z.number({ invalid_type_error: "Precio inválido" }).positive("El precio debe ser mayor a 0"),
+  price:    z.number({ error: "Precio inválido" }).positive("El precio debe ser mayor a 0"),
 });
 
 const UpdateSchema = ProductSchema.omit({ sku: true });
