@@ -74,6 +74,7 @@ git push
 > **Nunca** usar `git add .` ni `git add -A` — puede incluir archivos sensibles o no deseados.
 > Listá todos los archivos en **una sola línea** `git add archivo1 archivo2 …` — más compacto y seguro.
 > Reemplazá los nombres de archivo con los reales del `git status`, no con `<archivos>`.
+> **Siempre envolvé cada path en comillas simples** para evitar que bash interprete caracteres especiales como paréntesis en route groups de Next.js (ej: `app/(auth)/...`). Ejemplo correcto: `git add 'app/(auth)/admin/login/page.tsx'`.
 
 ---
 
