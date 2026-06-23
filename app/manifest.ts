@@ -7,22 +7,16 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Catálogo de electricidad y electrónica',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
+    background_color: '#000000',
     theme_color: '#1A56DB',
     orientation: 'portrait',
     categories: ['shopping', 'business'],
     icons: [
       {
         src: '/dgs-orbit-icon-512.png',
-        sizes: '512x512',
+        sizes: '192x192 512x512',
         type: 'image/png',
         purpose: 'any',
-      },
-      {
-        src: '/dgs-orbit-icon-512.png',
-        sizes: '512x512',
-        type: 'image/png',
-        purpose: 'maskable',
       },
     ],
   }
