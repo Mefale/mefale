@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Upload, Zap, Tag, Menu, X, LogOut, ClipboardList, Package } from "lucide-react";
+import Image from "next/image";
+import { Upload, Tag, Menu, X, LogOut, ClipboardList, Package } from "lucide-react";
 
 const NAV = [
   { href: "/admin/orders", label: "Control de Pedidos", icon: ClipboardList },
@@ -31,18 +32,15 @@ export default function AdminMobileHeader() {
   return (
     <>
       <header className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-200 flex items-center justify-between px-4 h-14 shrink-0">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0F172A] shrink-0">
-            <Zap className="w-4 h-4 text-white" strokeWidth={2.5} fill="currentColor" />
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-extrabold text-[#0F172A] text-[13px] tracking-tight">
-              Distribuidora Graser
-            </span>
-            <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-[0.16em] mt-0.5">
-              Admin
-            </span>
-          </div>
+        <Link href="/">
+          <Image
+            src="/dgs-logo-blue-recolor.png"
+            alt="Distribuidora Graser"
+            width={160}
+            height={64}
+            className="h-[52px] w-auto object-contain"
+            priority
+          />
         </Link>
 
         <button
