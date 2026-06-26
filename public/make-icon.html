@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generar ícono orbit SVG</title></head>
+<body style="background:#111;color:#fff;font-family:sans-serif;padding:20px">
+  <h2>Ícono orbit — vectorial</h2>
+
+  <canvas id="c" width="512" height="512"
+          style="border:1px solid #333;display:block;margin:20px 0;width:256px;height:256px;background:#000"></canvas>
+
+  <button onclick="dl()" style="padding:10px 20px;background:#1A56DB;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:16px">
+    Descargar dgs-orbit-icon-512.png
+  </button>
+
+  <script>
+    const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <!-- Arco trasero (pasa detrás del planeta, zona inferior-izquierda) -->
+      <path d="M 209 194 A 200 78 -37 0 0 307 318"
+            fill="none" stroke="#1A4BAF" stroke-width="15" stroke-linecap="round"/>
+      <!-- Cuerpo del planeta -->
+      <ellipse cx="256" cy="256" rx="148" ry="57" fill="#0B2C72"
+               transform="rotate(-37, 256, 256)"/>
+      <!-- Arco delantero (pasa frente al planeta, zona superior-derecha) -->
+      <path d="M 209 194 A 200 78 -37 0 1 307 318"
+            fill="none" stroke="#1A4BAF" stroke-width="15" stroke-linecap="round"/>
+      <!-- Punto satélite -->
+      <circle cx="295" cy="155" r="23" fill="#5AADDD"/>
+    </svg>`;
+
+    const img = new Image();
+    const blob = new Blob([SVG], {type: 'image/svg+xml'});
+    img.onload = () => {
+      const ctx = document.getElementById('c').getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,512,512);
+      ctx.drawImage(img, 0, 0, 512, 512);
+    };
+    img.src = URL.createObjectURL(blob);
+
+    function dl() {
+      const ctx = document.getElementById('c').getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,512,512);
+      ctx.drawImage(img, 0, 0, 512, 512);
+      const a = document.createElement('a');
+      a.download = 'dgs-orbit-icon-512.png';
+      a.href = document.getElementById('c').toDataURL('image/png');
+      a.click();
+    }
+  </script>
+</body>
+</html>
