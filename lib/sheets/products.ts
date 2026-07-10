@@ -87,18 +87,17 @@ export const getProducts = unstable_cache(
   { revalidate: 3600, tags: ["products"] }
 );
 
-export const getCategories = unstable_cache(
-  async (): Promise<string[]> => {
-    const products = await getProducts();
-    const seen = new Set<string>();
-    return products
-      .map((p) => p.category)
-      .filter((c) => {
-        if (!c || seen.has(c)) return false;
-        seen.add(c);
-        return true;
-      });
-  },
-  ["categories"],
-  { revalidate: 3600, tags: ["categories"] }
-);
+// NO envolver en unstable_cache: llamar a otra función cacheada (getProducts)
+// dentro de unstable_cache falla en producción y devuelve vacío. Como getProducts
+// ya está cacheado, derivamos las categorías directo de su resultado.
+export async function getCategories(): Promise<string[]> {
+  const products = await getProducts();
+  const seen = new Set<string>();
+  return products
+    .map((p) => p.category)
+    .filter((c) => {
+      if (!c || seen.has(c)) return false;
+      seen.add(c);
+      return true;
+    });
+}
