@@ -58,21 +58,39 @@ function rowToProduct(row: string[]): Product | null {
   };
 }
 
-export const getProducts = unstable_cache(
-  async (): Promise<Product[]> => {
-    const sheets = getSheetsClient();
-    let res;
+async function fetchSheetRows(): Promise<string[][]> {
+  const sheets = getSheetsClient();
+  const MAX_ATTEMPTS = 3;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      res = await sheets.spreadsheets.values.get(
+      const res = await sheets.spreadsheets.values.get(
         { spreadsheetId: process.env.GOOGLE_SHEETS_ID, range: RANGE },
         { timeout: 8000 }
       );
+      return res.data.values ?? [];
     } catch (err) {
-      console.error("[getProducts] Google Sheets error:", err);
-      return [];
+      console.error(
+        `[getProducts] intento ${attempt}/${MAX_ATTEMPTS} falló:`,
+        err
+      );
+      if (attempt < MAX_ATTEMPTS) {
+        // Backoff simple para fallos transitorios (429 / timeout / red).
+        await new Promise((r) => setTimeout(r, attempt * 500));
+      }
     }
+  }
 
-    const rows = res.data.values ?? [];
+  // IMPORTANTE: lanzar, NO devolver []. Si devolviéramos un array vacío,
+  // unstable_cache cachearía "0 productos" hasta 1h y el catálogo quedaría
+  // vacío intermitentemente. Al lanzar, el cache no se envenena y se reintenta
+  // en el próximo request.
+  throw new Error("No se pudieron obtener los productos de Google Sheets");
+}
+
+export const getProducts = unstable_cache(
+  async (): Promise<Product[]> => {
+    const rows = await fetchSheetRows();
     const seen = new Set<string>();
     return rows
       .map(rowToProduct)

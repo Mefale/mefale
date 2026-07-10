@@ -4,6 +4,7 @@ import { ProductCatalog } from "@/components/product/ProductCatalog";
 import { ProductGridSkeleton } from "@/components/product/ProductGridSkeleton";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { OffersSection } from "@/components/product/OffersSection";
+import { CatalogError } from "@/components/product/CatalogError";
 import { getProducts, getCategories } from "@/lib/sheets/products";
 import { queryProducts } from "@/utils/query-products";
 import type { Metadata } from "next";
@@ -27,10 +28,16 @@ async function CatalogSection({
   q?: string;
   page: number;
 }) {
-  const [products, categories] = await Promise.all([
-    getProducts(),
-    getCategories(),
-  ]);
+  let products, categories;
+  try {
+    [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  } catch {
+    return (
+      <Container>
+        <CatalogError />
+      </Container>
+    );
+  }
 
   const offerProducts = products.filter((p) => p.offer);
   const result = queryProducts(products, { category, q, page });

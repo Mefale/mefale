@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/layout/HeroSection";
 import { ProductCatalog } from "@/components/product/ProductCatalog";
 import { OffersSection } from "@/components/product/OffersSection";
 import { ProductGridSkeleton } from "@/components/product/ProductGridSkeleton";
+import { CatalogError } from "@/components/product/CatalogError";
 import { getProducts, getCategories } from "@/lib/sheets/products";
 import { queryProducts } from "@/utils/query-products";
 
@@ -20,10 +21,18 @@ async function HomeCatalogSection({
   q?: string;
   page: number;
 }) {
-  const [products, categories] = await Promise.all([
-    getProducts(),
-    getCategories(),
-  ]);
+  let products, categories;
+  try {
+    [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  } catch {
+    return (
+      <section className="pt-10 pb-16">
+        <Container>
+          <CatalogError />
+        </Container>
+      </section>
+    );
+  }
 
   const offerProducts = products.filter((p) => p.offer);
   const result = queryProducts(products, { category, q, page });
