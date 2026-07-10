@@ -27,15 +27,15 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[88vh] flex items-center overflow-hidden bg-[#F8FAFC]">
       {/* Fondo técnico */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none" style={{ transform: "translateZ(0)" }}>
         <div className="absolute inset-0 bg-grid-technical" />
         <div
           className="absolute -top-32 -left-32 w-[32rem] h-[32rem] rounded-full blur-[140px]"
-          style={{ backgroundColor: "rgba(26, 86, 219, 0.08)" }}
+          style={{ backgroundColor: "rgba(26, 86, 219, 0.08)", transform: "translateZ(0)", willChange: "transform" }}
         />
         <div
           className="absolute bottom-0 right-0 w-[28rem] h-[28rem] rounded-full blur-[120px]"
-          style={{ backgroundColor: "rgba(15, 23, 42, 0.05)" }}
+          style={{ backgroundColor: "rgba(15, 23, 42, 0.05)", transform: "translateZ(0)", willChange: "transform" }}
         />
         {/* Base degradado a blanco para fundir con el catálogo */}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white" />

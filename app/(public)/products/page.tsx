@@ -3,9 +3,9 @@ import { Container } from "@/components/layout/Container";
 import { ProductCatalog } from "@/components/product/ProductCatalog";
 import { ProductGridSkeleton } from "@/components/product/ProductGridSkeleton";
 import { SectionHeader } from "@/components/common/SectionHeader";
-import { CategoryCombobox } from "@/components/product/CategoryCombobox";
 import { OffersSection } from "@/components/product/OffersSection";
 import { getProducts, getCategories } from "@/lib/sheets/products";
+import { queryProducts } from "@/utils/query-products";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,21 +15,26 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
 };
 
-async function CatalogSection({ category }: { category?: string }) {
+async function CatalogSection({
+  category,
+  q,
+  page,
+}: {
+  category?: string;
+  q?: string;
+  page: number;
+}) {
   const [products, categories] = await Promise.all([
     getProducts(),
     getCategories(),
   ]);
 
   const offerProducts = products.filter((p) => p.offer);
-  const filtered = category
-    ? products.filter((p) => p.category === category)
-    : products;
-
-  const showOffers = !category && offerProducts.length > 0;
+  const result = queryProducts(products, { category, q, page });
+  const showOffers = !category && !q && offerProducts.length > 0;
 
   return (
     <>
@@ -41,14 +46,19 @@ async function CatalogSection({ category }: { category?: string }) {
           <div className="mb-8">
             <SectionHeader
               title={category ?? "Catálogo"}
-              subtitle={`${filtered.length} productos disponibles`}
+              subtitle={`${result.total} productos disponibles`}
             />
           </div>
 
           {/* Catalog: toolbar (categoría + búsqueda) + grid + pagination */}
           <ProductCatalog
-            products={filtered}
-            filterSlot={<CategoryCombobox categories={categories} selected={category} />}
+            products={result.items}
+            total={result.total}
+            totalPages={result.totalPages}
+            page={result.page}
+            query={q ?? ""}
+            category={category}
+            categories={categories}
           />
         </div>
       </Container>
@@ -57,7 +67,8 @@ async function CatalogSection({ category }: { category?: string }) {
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { category } = await searchParams;
+  const { category, q, page } = await searchParams;
+  const pageNum = Number(page) || 1;
 
   return (
     <div className="pt-24 pb-16 overflow-x-hidden">
@@ -77,7 +88,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           </Container>
         }
       >
-        <CatalogSection category={category} />
+        <CatalogSection category={category} q={q} page={pageNum} />
       </Suspense>
     </div>
   );

@@ -30,7 +30,7 @@ export function OffersSection({ products }: Props) {
       <Container>
         <section className="relative overflow-hidden rounded-2xl border border-[#93B5FF] bg-gradient-to-br from-[#D4E4FF] via-[#E6EFFF] to-[#A9C6FF] px-6 py-7 sm:px-8 sm:py-8 shadow-[0_24px_54px_-26px_rgba(26,86,219,0.4)]">
           {/* Decorative background */}
-          <div className="pointer-events-none absolute inset-0">
+          <div className="pointer-events-none absolute inset-0" style={{ transform: "translateZ(0)" }}>
             <div
               className="absolute inset-0 opacity-[0.1]"
               style={{
@@ -39,8 +39,14 @@ export function OffersSection({ products }: Props) {
                 backgroundSize: "24px 24px",
               }}
             />
-            <div className="absolute -top-32 -left-16 h-64 w-64 rounded-full bg-[#1D4ED8] opacity-[0.3] blur-[120px]" />
-            <div className="absolute -bottom-28 -right-16 h-64 w-64 rounded-full bg-[#0284C7] opacity-[0.24] blur-[120px]" />
+            <div
+              className="absolute -top-32 -left-16 h-64 w-64 rounded-full bg-[#1D4ED8] opacity-[0.3] blur-[120px]"
+              style={{ transform: "translateZ(0)", willChange: "transform" }}
+            />
+            <div
+              className="absolute -bottom-28 -right-16 h-64 w-64 rounded-full bg-[#0284C7] opacity-[0.24] blur-[120px]"
+              style={{ transform: "translateZ(0)", willChange: "transform" }}
+            />
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F81FF] to-transparent" />
             <div className="absolute inset-x-8 top-0 h-10 bg-gradient-to-b from-white/60 to-transparent" />
           </div>
