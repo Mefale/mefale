@@ -19,14 +19,17 @@ export function HomeCatalog({ products, categories }: Props) {
 
   return (
     <div>
-      <div className="mb-8">
-        <CategoryCombobox
-          categories={categories}
-          selected={category}
-          onChange={(cat) => setCategory(cat ?? undefined)}
-        />
-      </div>
-      <ProductCatalog key={category ?? "all"} products={filtered} />
+      <ProductCatalog
+        key={category ?? "all"}
+        products={filtered}
+        filterSlot={
+          <CategoryCombobox
+            categories={categories}
+            selected={category}
+            onChange={(cat) => setCategory(cat ?? undefined)}
+          />
+        }
+      />
     </div>
   );
 }

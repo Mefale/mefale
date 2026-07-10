@@ -8,6 +8,7 @@ import { Container } from "@/components/layout/Container";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { ProductModal } from "@/components/product/ProductModal";
 import { formatPrice } from "@/utils/format-price";
+import { discountPercent } from "@/utils/discount-percent";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 
@@ -138,6 +139,7 @@ function OfferCard({
 }) {
   const [imgError, setImgError] = useState(false);
   const mainImage = product.images[0];
+  const pct = discountPercent(product);
 
   return (
     <motion.div
@@ -175,7 +177,7 @@ function OfferCard({
           <div className="absolute top-2 left-2 pointer-events-none">
             <span className="flex items-center gap-1 rounded-md bg-[#DC2626] px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider leading-none text-white shadow-md ring-1 ring-white/20">
               <Zap className="h-3 w-3" strokeWidth={2.5} fill="currentColor" />
-              Oferta
+              {pct ? `-${pct}%` : "Oferta"}
             </span>
           </div>
 

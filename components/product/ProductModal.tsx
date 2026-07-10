@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { formatPrice } from "@/utils/format-price";
+import { discountPercent } from "@/utils/discount-percent";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -35,6 +36,8 @@ export function ProductModal({ product, onClose }: Props) {
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  const pct = product ? discountPercent(product) : null;
+
   return (
     <AnimatePresence>
       {product && (
@@ -60,7 +63,7 @@ export function ProductModal({ product, onClose }: Props) {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className="relative w-full max-w-sm rounded-2xl bg-white border border-[#E2E8F0] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.35)] overflow-hidden pointer-events-auto"
+              className="relative w-full max-w-md max-h-[90dvh] flex flex-col rounded-2xl bg-white border border-[#E2E8F0] shadow-[var(--shadow-panel)] overflow-hidden pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close */}
@@ -72,50 +75,83 @@ export function ProductModal({ product, onClose }: Props) {
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Image */}
-              <div className="relative w-full aspect-square bg-white">
-                {product.images[0] && !imgError && (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 672px) 100vw, 672px"
-                    className="object-contain p-6"
-                    onError={() => setImgError(true)}
-                  />
-                )}
-              </div>
-
-              {/* Info */}
-              <div className="px-5 py-4 flex flex-col gap-1.5 border-t border-[#F1F5F9]">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#94A3B8] font-mono uppercase tracking-wider">
-                    {product.sku}
-                  </span>
-                  <span className="w-1 h-1 rounded-full bg-[#CBD5E1]" />
-                  <span className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wide">
-                    {product.brand}
-                  </span>
+              <div className="overflow-y-auto">
+                {/* Image */}
+                <div className="relative w-full aspect-[4/3] bg-[#F8FAFC]">
+                  {product.images[0] && !imgError && (
+                    <Image
+                      src={product.images[0]}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 672px) 100vw, 672px"
+                      className="object-contain p-6 mix-blend-multiply"
+                      onError={() => setImgError(true)}
+                    />
+                  )}
+                  {product.offer && (
+                    <span className="absolute top-3 left-3 flex items-center gap-1 rounded-md bg-[#DC2626] px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider leading-none text-white shadow-sm">
+                      <Zap className="h-2.5 w-2.5" strokeWidth={2.5} fill="currentColor" />
+                      {pct ? `-${pct}%` : "Oferta"}
+                    </span>
+                  )}
                 </div>
-                <h2 className="text-base font-bold text-[#0F172A] leading-snug">
-                  {product.name}
-                </h2>
-                {product.discountPrice ? (
-                  <div className="flex flex-col gap-0.5 mt-1.5">
-                    <span className="text-xl font-extrabold text-[#0F172A] tabular-nums">
-                      {formatPrice(product.discountPrice)}
+
+                {/* Info */}
+                <div className="px-5 py-4 flex flex-col gap-2 border-t border-[#F1F5F9]">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] text-[#64748B] font-mono uppercase tracking-wider bg-[#F1F5F9] rounded px-1.5 py-0.5">
+                      {product.sku}
                     </span>
-                    <span className="text-sm text-[#94A3B8] line-through tabular-nums">
-                      {formatPrice(product.price)}
-                    </span>
+                    {product.brand && (
+                      <span className="text-[10px] font-semibold text-[#1A56DB] uppercase tracking-wider">
+                        {product.brand}
+                      </span>
+                    )}
+                    {product.category && (
+                      <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wide border border-[#E2E8F0] rounded-full px-2 py-0.5">
+                        {product.category}
+                      </span>
+                    )}
                   </div>
-                ) : (
-                  <span className="text-xl font-extrabold text-[#0F172A] tabular-nums mt-1.5">
-                    {formatPrice(product.price)}
-                  </span>
-                )}
-                <div className="mt-5 pt-4 border-t border-[#F1F5F9]">
-                  <AddToCartButton product={product} />
+
+                  <h2 className="text-lg font-bold text-[#0F172A] leading-snug">
+                    {product.name}
+                  </h2>
+
+                  {product.description && (
+                    <p className="text-sm text-[#475569] leading-relaxed">
+                      {product.description}
+                    </p>
+                  )}
+
+                  {/* Precio */}
+                  <div className="mt-2">
+                    {product.discountPrice ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm text-[#94A3B8] line-through tabular-nums">
+                          {formatPrice(product.price)}
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-extrabold text-[#0F172A] tabular-nums">
+                            {formatPrice(product.discountPrice)}
+                          </span>
+                          {pct && (
+                            <span className="text-xs font-bold text-[#16A34A]">
+                              {pct}% OFF
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-2xl font-extrabold text-[#0F172A] tabular-nums">
+                        {formatPrice(product.price)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 pt-4 border-t border-[#F1F5F9]">
+                    <AddToCartButton product={product} />
+                  </div>
                 </div>
               </div>
             </div>

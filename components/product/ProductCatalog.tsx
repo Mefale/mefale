@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { ProductGrid } from "./ProductGrid";
 import { ProductModal } from "./ProductModal";
@@ -11,12 +11,15 @@ const PAGE_SIZE = 40;
 
 type Props = {
   products: Product[];
+  /** Filtro extra (ej: CategoryCombobox) renderizado dentro de la toolbar sticky. */
+  filterSlot?: React.ReactNode;
 };
 
-export function ProductCatalog({ products }: Props) {
+export function ProductCatalog({ products, filterSlot }: Props) {
   const [selected, setSelected] = useState<Product | null>(null);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const topAnchorRef = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setSelected(null), []);
 
   const filtered = useMemo(() => {
@@ -37,33 +40,49 @@ export function ProductCatalog({ products }: Props) {
     setPage(1);
   }
 
+  function handlePageChange(p: number) {
+    setPage(p);
+    // Scroll hasta la toolbar (buscador), no hasta arriba de todo.
+    const anchor = topAnchorRef.current;
+    if (!anchor) return;
+    const NAVBAR_OFFSET = 72;
+    const y = anchor.getBoundingClientRect().top + window.scrollY - NAVBAR_OFFSET;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+
   function buildHref(p: number) { return "#"; }
 
   return (
     <>
-      {/* Search bar — sticky para catálogos largos */}
-      <div className="sticky top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 mb-5 bg-white border-b border-[#E2E8F0]">
-        <div className="relative w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
-          <input
-            value={query}
-            onChange={(e) => handleQuery(e.target.value)}
-            placeholder="Buscar por nombre o código..."
-            className="w-full bg-white border border-[#E2E8F0] shadow-sm rounded-lg pl-10 pr-10 py-2.5 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
-          />
-          {query && (
-            <button
-              onClick={() => handleQuery("")}
-              aria-label="Limpiar búsqueda"
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#0F172A] transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+      {/* Ancla de scroll para el cambio de página */}
+      <div ref={topAnchorRef} aria-hidden className="h-0" />
+
+      {/* Toolbar: categoría + búsqueda */}
+      <div className="py-3 mb-4 border-b border-[#E2E8F0]">
+        <div className="flex flex-col sm:flex-row gap-2">
+          {filterSlot && <div className="sm:w-64 lg:w-72 shrink-0">{filterSlot}</div>}
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
+            <input
+              value={query}
+              onChange={(e) => handleQuery(e.target.value)}
+              placeholder="Buscar por nombre o código..."
+              className="w-full bg-white border border-[#E2E8F0] shadow-sm rounded-lg pl-10 pr-10 py-2.5 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors"
+            />
+            {query && (
+              <button
+                onClick={() => handleQuery("")}
+                aria-label="Limpiar búsqueda"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 -m-1 text-[#94A3B8] hover:text-[#0F172A] transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <p className="text-sm text-[#64748B] mb-4">
+      <p className="text-sm text-[#64748B] mb-5">
         {query ? (
           <>
             {filtered.length} resultado{filtered.length !== 1 ? "s" : ""} para{" "}
@@ -86,7 +105,7 @@ export function ProductCatalog({ products }: Props) {
         page={page}
         totalPages={totalPages}
         buildHref={buildHref}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
       />
 
       <ProductModal product={selected} onClose={close} />

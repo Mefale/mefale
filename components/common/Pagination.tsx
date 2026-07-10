@@ -21,8 +21,6 @@ export function Pagination({ page, totalPages, buildHref, onPageChange }: Props)
   function go(p: number) {
     if (p < 1 || p > totalPages) return;
     onPageChange?.(p);
-    const target = document.getElementById("catalogo") ?? document.body;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (

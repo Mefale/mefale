@@ -45,13 +45,11 @@ async function CatalogSection({ category }: { category?: string }) {
             />
           </div>
 
-          {/* Category filter */}
-          <div className="mb-8">
-            <CategoryCombobox categories={categories} selected={category} />
-          </div>
-
-          {/* Catalog: search + grid + pagination */}
-          <ProductCatalog products={filtered} />
+          {/* Catalog: toolbar (categoría + búsqueda) + grid + pagination */}
+          <ProductCatalog
+            products={filtered}
+            filterSlot={<CategoryCombobox categories={categories} selected={category} />}
+          />
         </div>
       </Container>
     </>
@@ -71,7 +69,10 @@ export default async function ProductsPage({ searchParams }: Props) {
               <div className="h-8 w-48 rounded bg-[#F1F5F9] animate-pulse" />
               <div className="h-4 w-40 rounded bg-[#F1F5F9] animate-pulse" />
             </div>
-            <div className="mb-8 h-11 w-full rounded-lg bg-[#F1F5F9] animate-pulse" />
+            <div className="mb-8 flex flex-col sm:flex-row gap-2">
+              <div className="h-11 sm:w-64 lg:w-72 rounded-lg bg-[#F1F5F9] animate-pulse" />
+              <div className="h-11 flex-1 rounded-lg bg-[#F1F5F9] animate-pulse" />
+            </div>
             <ProductGridSkeleton />
           </Container>
         }
