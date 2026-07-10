@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useRef, useEffect } from "react";
 import type { Product } from "@/types/product";
 import {
   createProductAction,
@@ -9,7 +9,7 @@ import {
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, Check, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -52,6 +52,135 @@ function Field({
   );
 }
 
+function CategorySelect({
+  id,
+  value,
+  categories,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  categories: string[];
+  onChange: (category: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const filtered = query.trim()
+    ? categories.filter((c) => c.toLowerCase().includes(query.toLowerCase().trim()))
+    : categories;
+
+  const trimmedQuery = query.trim();
+  const exactMatch = categories.some(
+    (c) => c.toLowerCase() === trimmedQuery.toLowerCase()
+  );
+
+  function select(category: string) {
+    onChange(category);
+    setOpen(false);
+    setQuery("");
+  }
+
+  useEffect(() => {
+    if (open) searchRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery("");
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setQuery("");
+      }
+    }
+    document.addEventListener("mousedown", onOutside);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onOutside);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        id={id}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`w-full flex items-center justify-between gap-2 border rounded-md px-3 py-2 text-sm text-left transition-colors ${
+          open
+            ? "border-[#1A56DB] ring-2 ring-[#1A56DB]/20"
+            : "border-gray-200 hover:border-gray-300"
+        } ${value ? "text-gray-900" : "text-gray-400"}`}
+      >
+        <span className="truncate">{value || "Seleccionar categoría…"}</span>
+        <ChevronDown
+          className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-full z-20 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100">
+            <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <input
+              ref={searchRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar o crear categoría…"
+              className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+            />
+          </div>
+
+          <ul className="max-h-52 overflow-y-auto py-1">
+            {filtered.map((cat) => (
+              <li key={cat}>
+                <button
+                  type="button"
+                  onClick={() => select(cat)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-gray-50 ${
+                    value === cat ? "text-[#1A56DB] font-medium" : "text-gray-700"
+                  }`}
+                >
+                  <Check className={`w-3.5 h-3.5 shrink-0 ${value === cat ? "opacity-100" : "opacity-0"}`} />
+                  {cat}
+                </button>
+              </li>
+            ))}
+
+            {filtered.length === 0 && !trimmedQuery && (
+              <li className="px-3 py-3 text-sm text-gray-400 text-center">
+                No hay categorías cargadas
+              </li>
+            )}
+
+            {trimmedQuery && !exactMatch && (
+              <li className="border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => select(trimmedQuery)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left text-[#1A56DB] hover:bg-[#EFF4FE] transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
+                  Crear categoría &ldquo;{trimmedQuery}&rdquo;
+                </button>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProductsClient({ products }: { products: Product[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -63,6 +192,14 @@ export default function ProductsClient({ products }: { products: Product[] }) {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const categories = useMemo(
+    () =>
+      Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b, "es")
+      ),
+    [products]
+  );
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -209,11 +346,11 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                     <td className="px-4 py-3 text-center whitespace-nowrap">
                       {product.offer ? (
                         <span className="inline-flex flex-col items-center gap-0.5">
-                          <span className="text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5">
+                          <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
                             Oferta
                           </span>
                           {product.discountPrice && (
-                            <span className="text-xs text-orange-500">
+                            <span className="text-xs text-emerald-600">
                               ${product.discountPrice.toLocaleString("es-AR")}
                             </span>
                           )}
@@ -226,7 +363,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => openEdit(product)}
-                          className="p-1.5 rounded-md bg-amber-100 text-amber-600 hover:bg-amber-200 hover:text-amber-700 transition-colors"
+                          className="p-1.5 rounded-md bg-[#EFF4FE] text-[#1A56DB] hover:bg-[#DBE7FD] hover:text-[#1447C0] transition-colors"
                           title="Editar"
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -304,11 +441,11 @@ export default function ProductsClient({ products }: { products: Product[] }) {
               </Field>
 
               <Field label="Categoría" id="category">
-                <Input
+                <CategorySelect
                   id="category"
                   value={form.category}
-                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                  placeholder="Ej: Cables"
+                  categories={categories}
+                  onChange={(category) => setForm((f) => ({ ...f, category }))}
                 />
               </Field>
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import type { ImportRow } from "@/lib/sheets/import";
 
@@ -129,9 +131,15 @@ export default function ImportarPage() {
       const data: ImportResult = await res.json();
       setResult(data);
       setStage("done");
+      toast.success("Importación completada", {
+        description: `${data.updated} actualizados, ${data.created} nuevos`,
+      });
     } catch (err) {
       setErrorMsg((err as Error).message);
       setStage("error");
+      toast.error("La importación falló", {
+        description: (err as Error).message,
+      });
     }
   }
 
@@ -213,7 +221,7 @@ export default function ImportarPage() {
           <div className="flex gap-3">
             <button
               onClick={handleImport}
-              className="bg-gray-900 text-white text-sm font-medium px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+              className="bg-[#1A56DB] text-white text-sm font-medium px-6 py-2 rounded-lg hover:bg-[#1447C0] transition-colors"
             >
               Confirmar importación
             </button>
@@ -229,7 +237,8 @@ export default function ImportarPage() {
 
       {/* Importing */}
       {stage === "importing" && (
-        <div className="text-center py-16 text-gray-500 text-sm">
+        <div className="flex flex-col items-center gap-3 py-16 text-gray-500 text-sm">
+          <Loader2 className="w-6 h-6 animate-spin text-[#1A56DB]" />
           Importando productos al catálogo…
         </div>
       )}

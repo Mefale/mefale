@@ -2,21 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Upload, Tag, ClipboardList, Package } from "lucide-react";
-
-const NAV = [
-  { href: "/admin/orders", label: "Control de Pedidos", icon: ClipboardList },
-  { href: "/admin/products", label: "Productos", icon: Package },
-  { href: "/admin/offers", label: "Ofertas", icon: Tag },
-  { href: "/admin/import", label: "Importar productos", icon: Upload },
-];
+import { ADMIN_NAV } from "./nav-items";
 
 export default function AdminNav() {
   const pathname = usePathname();
 
   return (
     <nav className="flex-1 px-3 py-4 space-y-0.5">
-      {NAV.map(({ href, label, icon: Icon }) => {
+      {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
         const active = pathname === href;
         return (
           <Link

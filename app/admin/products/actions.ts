@@ -2,6 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { z } from "zod";
+import { authOptions } from "@/lib/auth";
 import { createProduct, updateProduct, deleteProduct } from "@/lib/sheets/products-crud";
 
 const ProductSchema = z.object({
@@ -16,7 +17,7 @@ const UpdateSchema = ProductSchema.omit({ sku: true });
 type Result = { success: boolean; error?: string };
 
 async function requireSession(): Promise<boolean> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   return !!session?.user;
 }
 

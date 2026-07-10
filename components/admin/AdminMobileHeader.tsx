@@ -5,14 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
-import { Upload, Tag, Menu, X, LogOut, ClipboardList, Package } from "lucide-react";
-
-const NAV = [
-  { href: "/admin/orders", label: "Control de Pedidos", icon: ClipboardList },
-  { href: "/admin/products", label: "Productos", icon: Package },
-  { href: "/admin/offers", label: "Ofertas", icon: Tag },
-  { href: "/admin/import", label: "Importar productos", icon: Upload },
-];
+import { Menu, X, LogOut } from "lucide-react";
+import { ADMIN_NAV } from "./nav-items";
 
 export default function AdminMobileHeader() {
   const [open, setOpen] = useState(false);
@@ -67,7 +61,7 @@ export default function AdminMobileHeader() {
         }`}
       >
         <nav className="px-3 py-3 space-y-1">
-          {NAV.map(({ href, label, icon: Icon }) => {
+          {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
               <Link
@@ -75,7 +69,7 @@ export default function AdminMobileHeader() {
                 href={href}
                 className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors ${
                   active
-                    ? "bg-gray-100 text-gray-900 font-medium"
+                    ? "bg-[#EFF6FF] text-[#1A56DB] font-medium"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >

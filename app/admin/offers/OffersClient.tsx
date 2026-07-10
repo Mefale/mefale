@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
 import type { Product } from "@/types/product";
 import { setOfferAction } from "./actions";
 
@@ -38,7 +39,7 @@ function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 ${
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A56DB] ${
         checked ? "bg-emerald-500" : "bg-gray-200"
       }`}
     >
@@ -118,6 +119,14 @@ export default function OffersClient({ products }: { products: Product[] }) {
         ? { status: "saved" }
         : { status: "error", error: result.error }
     );
+    if (result.success) {
+      toast.success(row.offer ? "Oferta guardada" : "Oferta quitada", {
+        description: p.name,
+        duration: 2000,
+      });
+    } else {
+      toast.error(result.error ?? "No se pudo guardar la oferta");
+    }
     setTimeout(() => update(p.sku, { status: "idle" }), 2000);
   }
 
@@ -132,7 +141,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
     });
 
     const snapshot = { ...rows };
-    await Promise.all(
+    const results = await Promise.all(
       dirtyProducts.map(async (p) => {
         const row = snapshot[p.sku];
         const discountPrice =
@@ -144,8 +153,24 @@ export default function OffersClient({ products }: { products: Product[] }) {
             ? { status: "saved" }
             : { status: "error", error: result.error }
         );
+        return result.success;
       })
     );
+
+    const okCount = results.filter(Boolean).length;
+    const failCount = results.length - okCount;
+    if (okCount > 0) {
+      toast.success(
+        okCount === 1 ? "1 oferta guardada" : `${okCount} ofertas guardadas`
+      );
+    }
+    if (failCount > 0) {
+      toast.error(
+        failCount === 1
+          ? "1 oferta no se pudo guardar"
+          : `${failCount} ofertas no se pudieron guardar`
+      );
+    }
 
     setTimeout(() => {
       setRows((prev) => {
@@ -179,7 +204,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
       return next;
     });
 
-    await Promise.all(
+    const results = await Promise.all(
       toRemove.map(async (p) => {
         const result = await setOfferAction(p.sku, false, null);
         update(
@@ -188,8 +213,24 @@ export default function OffersClient({ products }: { products: Product[] }) {
             ? { status: "saved" }
             : { status: "error", error: result.error }
         );
+        return result.success;
       })
     );
+
+    const okCount = results.filter(Boolean).length;
+    const failCount = results.length - okCount;
+    if (okCount > 0) {
+      toast.success(
+        okCount === 1 ? "Se quitó 1 oferta" : `Se quitaron ${okCount} ofertas`
+      );
+    }
+    if (failCount > 0) {
+      toast.error(
+        failCount === 1
+          ? "1 oferta no se pudo quitar"
+          : `${failCount} ofertas no se pudieron quitar`
+      );
+    }
 
     setTimeout(() => {
       setRows((prev) => {
@@ -254,7 +295,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
           <button
             onClick={handleSaveAll}
             disabled={isSaving}
-            className="text-sm font-medium px-4 py-1.5 rounded-lg bg-amber-800 text-white hover:bg-amber-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            className="text-sm font-medium px-4 py-1.5 rounded-lg bg-[#1A56DB] text-white hover:bg-[#1447C0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
           >
             {isSaving ? "Guardando..." : "Guardar todos"}
           </button>
@@ -268,7 +309,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
           placeholder="Buscar por nombre o SKU..."
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/20"
         />
         <div className="flex items-center gap-2">
           <button
@@ -278,7 +319,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
             }}
             className={`text-xs px-3 py-1.5 rounded-lg border transition-colors whitespace-nowrap ${
               offersFirst
-                ? "bg-gray-900 text-white border-gray-900"
+                ? "bg-[#1A56DB] text-white border-[#1A56DB]"
                 : "border-gray-200 text-gray-500 hover:bg-gray-50"
             }`}
           >
@@ -342,7 +383,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
                       <button
                         onClick={() => handleSave(p)}
                         disabled={row.status === "saving"}
-                        className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-gray-900 text-white hover:bg-gray-700 mt-0.5"
+                        className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-[#1A56DB] text-white hover:bg-[#1447C0] mt-0.5"
                       >
                         {row.status === "saving" ? "..." : "Guardar"}
                       </button>
@@ -361,7 +402,7 @@ export default function OffersClient({ products }: { products: Product[] }) {
                         <span className="text-xs text-gray-500 shrink-0">
                           Precio oferta
                         </span>
-                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-gray-900 bg-white">
+                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:border-[#1A56DB] focus-within:ring-2 focus-within:ring-[#1A56DB]/20 bg-white">
                           <span className="px-2 text-sm text-gray-400 select-none border-r border-gray-200 bg-gray-50">
                             $
                           </span>
