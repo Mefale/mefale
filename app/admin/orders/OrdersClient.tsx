@@ -27,7 +27,7 @@ import {
   buildWhatsAppUrlForNumber,
   buildOrderSummaryMessage,
 } from "@/lib/whatsapp/build-message";
-import { updateOrderAction } from "./actions";
+import { updateOrderAction, createOrderAction } from "./actions";
 import type { Order, OrderItem, OrderStatus } from "@/lib/sheets/orders";
 import type { Product } from "@/types/product";
 
@@ -768,17 +768,18 @@ function OrderDetailPanel({
         aria-hidden
       />
 
-      {/* Panel */}
+      {/* Modal */}
       <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: 0 }}
-        exit={{ x: "100%" }}
-        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
         className={cn(
-          "fixed top-0 right-0 bottom-0 z-50",
-          "w-full sm:w-[520px]",
-          "flex flex-col",
-          "bg-white border-l border-[#E2E8F0]",
+          "fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2",
+          "w-[calc(100%-2rem)] sm:w-[90vw] sm:max-w-[880px] lg:max-w-[1040px]",
+          "max-h-[calc(100dvh-2rem)] sm:max-h-[88vh]",
+          "flex flex-col overflow-hidden",
+          "bg-white rounded-2xl border border-[#E2E8F0]",
           "shadow-[0_24px_48px_-12px_rgba(15,23,42,0.35)]"
         )}
         role="dialog"
@@ -830,7 +831,7 @@ function OrderDetailPanel({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-5">
+        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-5 lg:grid lg:grid-cols-[300px_1fr] lg:gap-x-6 lg:items-start">
           {/* Estado */}
           <div className="flex flex-col gap-2">
             <p className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
@@ -1062,6 +1063,275 @@ function OrderDetailPanel({
   );
 }
 
+// ─── Create Order Modal (orden manual) ─────────────────────────────────────────
+
+function CreateOrderModal({
+  products,
+  onClose,
+  onCreated,
+}: {
+  products: Product[];
+  onClose: () => void;
+  onCreated: (order: Order) => void;
+}) {
+  const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [items, setItems] = useState<OrderItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const computedTotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  function handleQtyChange(idx: number, raw: string) {
+    const qty = Math.max(1, parseInt(raw) || 1);
+    setItems((prev) => prev.map((it, i) => i === idx ? { ...it, quantity: qty } : it));
+  }
+
+  function handlePriceChange(idx: number, raw: string) {
+    const price = Math.max(0, parseFloat(raw) || 0);
+    setItems((prev) => prev.map((it, i) => i === idx ? { ...it, price } : it));
+  }
+
+  function handleRemoveItem(idx: number) {
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function handleAddProduct(product: Product) {
+    const existing = items.findIndex((it) => it.sku === product.sku);
+    if (existing !== -1) {
+      setItems((prev) =>
+        prev.map((it, i) => i === existing ? { ...it, quantity: it.quantity + 1 } : it)
+      );
+    } else {
+      setItems((prev) => [
+        ...prev,
+        { sku: product.sku, name: product.name, quantity: 1, price: product.price },
+      ]);
+    }
+    setSearchQuery("");
+  }
+
+  async function handleCreate() {
+    if (items.length === 0) return;
+    setCreating(true);
+    const res = await createOrderAction({
+      customerName: customerName.trim(),
+      phone: phone.trim(),
+      items,
+    });
+    setCreating(false);
+    if (res.success && res.order) {
+      toast.success("Orden creada.");
+      onCreated(res.order);
+    } else {
+      toast.error(res.error ?? "No se pudo crear la orden.");
+    }
+  }
+
+  const filteredProducts = searchQuery.length >= 2
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-50 bg-[#0F172A]/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden
+      />
+
+      {/* Modal */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+        className={cn(
+          "fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2",
+          "w-[calc(100%-2rem)] sm:w-[90vw] sm:max-w-[720px]",
+          "h-[calc(100dvh-2rem)] sm:h-[620px] sm:max-h-[88vh]",
+          "flex flex-col overflow-hidden",
+          "bg-white rounded-2xl border border-[#E2E8F0]",
+          "shadow-[0_24px_48px_-12px_rgba(15,23,42,0.35)]"
+        )}
+        role="dialog"
+        aria-modal
+        aria-label="Nueva orden manual"
+      >
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between gap-3">
+          <h2 className="font-bold text-[#0F172A] text-base">Nueva orden manual</h2>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-5">
+          {/* Cliente */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+              Cliente
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Nombre (opcional)"
+                className="w-full text-sm text-[#0F172A] border border-[#E2E8F0] rounded-lg px-3 py-2 focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10"
+              />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Teléfono (opcional)"
+                className="w-full text-sm text-[#0F172A] border border-[#E2E8F0] rounded-lg px-3 py-2 focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10"
+              />
+            </div>
+          </div>
+
+          {/* Productos */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+              Productos
+            </p>
+
+            {/* Buscador */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar producto por nombre o SKU…"
+                className="w-full text-sm text-[#0F172A] border border-[#E2E8F0] rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10"
+              />
+              {filteredProducts.length > 0 && (
+                <div className="absolute z-10 mt-1 w-full max-h-64 overflow-y-auto bg-white border border-[#E2E8F0] rounded-lg shadow-lg divide-y divide-[#F1F5F9]">
+                  {filteredProducts.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleAddProduct(p)}
+                      className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left hover:bg-[#F8FAFC] transition-colors"
+                    >
+                      <span className="flex flex-col min-w-0">
+                        <span className="text-sm text-[#0F172A] truncate">{p.name}</span>
+                        <span className="text-[10px] text-[#94A3B8] font-mono">{p.sku}</span>
+                      </span>
+                      <span className="text-xs font-semibold text-[#1A56DB] tabular-nums ml-2 shrink-0">
+                        {formatPrice(p.price)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Lista */}
+            {items.length === 0 ? (
+              <p className="text-xs text-[#94A3B8] italic py-3 text-center border border-dashed border-[#E2E8F0] rounded-lg">
+                Buscá y agregá productos para armar la orden.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                <div className="grid grid-cols-[1fr_70px_85px_28px] gap-2 text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider px-1">
+                  <span>Producto</span>
+                  <span className="text-center">Cant.</span>
+                  <span className="text-right">Precio</span>
+                  <span />
+                </div>
+                {items.map((item, idx) => (
+                  <div
+                    key={`${item.sku}-${idx}`}
+                    className="grid grid-cols-[1fr_70px_85px_28px] gap-2 items-center py-1.5 px-1 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm leading-tight truncate text-[#0F172A]">{item.name}</p>
+                      <p className="text-[10px] text-[#94A3B8] font-mono">{item.sku}</p>
+                    </div>
+                    <input
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => handleQtyChange(idx, e.target.value)}
+                      className="w-full text-center text-sm font-semibold text-[#0F172A] border border-[#E2E8F0] rounded-lg px-2 py-1 focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10 tabular-nums"
+                    />
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-[#94A3B8] pointer-events-none">$</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={item.price}
+                        onChange={(e) => handlePriceChange(idx, e.target.value)}
+                        className="w-full text-right text-sm font-semibold text-[#0F172A] border border-[#E2E8F0] rounded-lg pl-5 pr-2 py-1 focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10 tabular-nums"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleRemoveItem(idx)}
+                      aria-label="Quitar producto"
+                      className="p-1 rounded text-[#CBD5E1] hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 flex items-center justify-between gap-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-xs text-[#64748B]">Total</span>
+            <span className="text-lg font-bold text-[#0F172A] tabular-nums">
+              {formatPrice(computedTotal)}
+            </span>
+          </div>
+          <button
+            onClick={handleCreate}
+            disabled={items.length === 0 || creating}
+            className={cn(
+              "flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg transition-all",
+              "bg-[#1A56DB] hover:bg-[#1447C0] text-white shadow-sm",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+          >
+            <Plus className="w-4 h-4" />
+            {creating ? "Creando..." : "Crear orden"}
+          </button>
+        </div>
+      </motion.div>
+    </>
+  );
+}
+
 // ─── Main Client ──────────────────────────────────────────────────────────────
 
 export default function OrdersClient({
@@ -1075,6 +1345,13 @@ export default function OrdersClient({
   const [filter, setFilter] = useState<OrderStatus | "Todos">("Todos");
   const [dateFilter, setDateFilter] = useState<string>(todayInputValue);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+
+  function handleOrderCreated(order: Order) {
+    setOrders((prev) => [order, ...prev]);
+    setShowCreate(false);
+    setSelectedKey(orderKey(order));
+  }
 
   function handleStatusChange(key: string, newStatus: OrderStatus) {
     setOrders((prev) =>
@@ -1150,6 +1427,13 @@ export default function OrdersClient({
             </span>
           )}
           <DatePickerPopover value={dateFilter} onChange={setDateFilter} />
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#1A56DB] hover:bg-[#1447C0] text-white shadow-sm transition-colors whitespace-nowrap"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Crear orden</span>
+          </button>
         </div>
       </div>
 
@@ -1192,6 +1476,17 @@ export default function OrdersClient({
             onClose={() => setSelectedKey(null)}
             onStatusChange={handleStatusChange}
             onItemsSaved={handleItemsSaved}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Create order modal */}
+      <AnimatePresence>
+        {showCreate && (
+          <CreateOrderModal
+            products={products}
+            onClose={() => setShowCreate(false)}
+            onCreated={handleOrderCreated}
           />
         )}
       </AnimatePresence>

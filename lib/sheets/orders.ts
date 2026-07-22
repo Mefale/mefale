@@ -150,7 +150,7 @@ export async function updateOrder(
   return { success: true };
 }
 
-export async function appendOrder(order: OrderEntry): Promise<void> {
+export async function appendOrder(order: OrderEntry): Promise<Order> {
   const sheets = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEETS_ID!;
 
@@ -171,7 +171,7 @@ export async function appendOrder(order: OrderEntry): Promise<void> {
   const id = crypto.randomUUID();
   const discountStr = order.discountPercentage > 0 ? `${order.discountPercentage}%` : "-";
 
-  await sheets.spreadsheets.values.append({
+  const res = await sheets.spreadsheets.values.append({
     spreadsheetId,
     range: "Orders!A:I",
     valueInputOption: "RAW",
@@ -189,4 +189,21 @@ export async function appendOrder(order: OrderEntry): Promise<void> {
       ]],
     },
   });
+
+  // updatedRange viene como "Orders!A5:I5" → extraemos el número de fila
+  const updatedRange = res.data.updates?.updatedRange ?? "";
+  const rowNumber = Number(updatedRange.match(/![A-Z]+(\d+):/)?.[1]) || 0;
+
+  return {
+    id,
+    rowNumber,
+    date,
+    time,
+    customerName: order.customerName || "-",
+    phone: order.phone || "-",
+    items: order.items,
+    total: order.total,
+    discountPercentage: order.discountPercentage,
+    status: "Generado",
+  };
 }
