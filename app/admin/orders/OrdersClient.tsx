@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, Fragment } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
-  ChevronUp,
+  ChevronRight,
   Phone,
   Calendar,
   Clock,
@@ -44,6 +44,8 @@ const STATUS_OPTIONS: {
   { value: "Cancelado",   label: "Cancelado",   pill: "bg-red-50 text-red-500 border-red-200",         dot: "bg-red-400",    border: "border-l-red-400"    },
 ];
 
+const FLOW_STEPS = STATUS_OPTIONS.slice(0, 3);
+
 function statusPill(s: OrderStatus) {
   return STATUS_OPTIONS.find((o) => o.value === s)?.pill ?? "bg-slate-100 text-slate-600 border-slate-200";
 }
@@ -71,6 +73,10 @@ function offsetDate(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() - days);
   return d.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
+}
+
+function orderKey(o: Order): string {
+  return o.id || `${o.date}-${o.time}-${o.customerName}`;
 }
 
 // ─── KPI Bar ─────────────────────────────────────────────────────────────────
@@ -371,18 +377,260 @@ function DatePickerPopover({
   );
 }
 
-// ─── Order Card ───────────────────────────────────────────────────────────────
+// ─── Status Stepper (usado dentro del panel de detalle) ───────────────────────
 
-function OrderCard({
+function StatusStepper({
+  status,
+  onChange,
+  disabled,
+}: {
+  status: OrderStatus;
+  onChange: (s: OrderStatus) => void;
+  disabled?: boolean;
+}) {
+  const isCancelled = status === "Cancelado";
+  const currentIdx = FLOW_STEPS.findIndex((s) => s.value === status);
+
+  if (isCancelled) {
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+        <div className="flex items-center gap-2 text-red-600">
+          <span className="h-2 w-2 rounded-full bg-red-500" />
+          <span className="text-sm font-semibold">Pedido cancelado</span>
+        </div>
+        {!disabled && (
+          <button
+            onClick={() => onChange("Generado")}
+            className="text-xs font-medium text-red-600 hover:text-red-700 underline underline-offset-2"
+          >
+            Reactivar
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-start">
+        {FLOW_STEPS.map((step, i) => {
+          const done = i < currentIdx;
+          const reached = i <= currentIdx;
+          return (
+            <Fragment key={step.value}>
+              <button
+                onClick={() => onChange(step.value)}
+                disabled={disabled}
+                className="flex flex-col items-center gap-1.5 group disabled:cursor-not-allowed"
+              >
+                <span
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors",
+                    reached
+                      ? "bg-[#1A56DB] border-[#1A56DB] text-white"
+                      : "bg-white border-[#E2E8F0] text-[#94A3B8] group-hover:border-[#94A3B8]"
+                  )}
+                >
+                  {done ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                </span>
+                <span
+                  className={cn(
+                    "text-[11px] font-medium whitespace-nowrap",
+                    reached ? "text-[#0F172A]" : "text-[#94A3B8]"
+                  )}
+                >
+                  {step.label}
+                </span>
+              </button>
+              {i < FLOW_STEPS.length - 1 && (
+                <span
+                  className={cn(
+                    "h-0.5 flex-1 mx-1 mt-4 rounded-full transition-colors",
+                    i < currentIdx ? "bg-[#1A56DB]" : "bg-[#E2E8F0]"
+                  )}
+                />
+              )}
+            </Fragment>
+          );
+        })}
+      </div>
+      {!disabled && (
+        <button
+          onClick={() => onChange("Cancelado")}
+          className="self-start text-xs font-medium text-[#94A3B8] hover:text-red-600 transition-colors"
+        >
+          Cancelar pedido
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Order Row (fila compacta de la lista) ─────────────────────────────────────
+
+function OrderRow({
+  order,
+  onOpen,
+}: {
+  order: Order;
+  onOpen: (key: string) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const isLegacy = !order.id;
+  const hasPhone = order.phone && order.phone !== "-";
+  const customerName = order.customerName !== "-" ? order.customerName : null;
+
+  const pendingItems = order.items.filter((i) => i.pending);
+  const hasPending = pendingItems.length > 0;
+
+  const total = order.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+  const orderNum = String(order.rowNumber - 1).padStart(4, "0");
+  const previewItems = order.items.slice(0, 2);
+
+  async function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
+    const msg = buildOrderSummaryMessage(order.items, order.customerName, order.discountPercentage);
+    await navigator.clipboard.writeText(msg);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handleResend(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!hasPhone) return;
+    const msg = buildOrderSummaryMessage(order.items, order.customerName, order.discountPercentage);
+    const url = buildWhatsAppUrlForNumber(msg, order.phone);
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <div
+      onClick={() => onOpen(orderKey(order))}
+      className={cn(
+        "bg-white rounded-xl border border-[#E2E8F0] border-l-4 overflow-hidden cursor-pointer transition-all duration-200",
+        isLegacy
+          ? "border-dashed border-gray-300 border-l-gray-300"
+          : cn(
+              "shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-l-[6px]",
+              statusBorder(order.status)
+            )
+      )}
+    >
+      <div className="px-4 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        {/* Info: order number + name + phone + badges + meta line */}
+        <div className="flex flex-col gap-1 min-w-0 sm:flex-1">
+          {/* Name row */}
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="text-[11px] font-mono text-[#64748B] shrink-0 bg-[#F1F5F9] rounded-md px-1.5 py-0.5">
+              #{orderNum}
+            </span>
+            <span className="font-semibold text-[#0F172A] truncate">
+              {customerName ?? "Sin nombre"}
+            </span>
+            {hasPending && (
+              <span className="flex items-center gap-1.5 text-[10px] bg-[#FEE2E2] text-[#B91C1C] px-1.5 py-0.5 rounded-full font-semibold uppercase tracking-wide border border-[#DC2626]/25 whitespace-nowrap shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#DC2626] animate-pulse" />
+                {pendingItems.length} sin stock
+              </span>
+            )}
+            {isLegacy && (
+              <span className="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-medium border border-gray-200 shrink-0">
+                Legacy
+              </span>
+            )}
+          </div>
+
+          {/* Meta line: time · N productos · (preview items en sm+) */}
+          <div className="flex items-center gap-1.5 text-xs text-[#94A3B8] min-w-0">
+            {hasPhone && (
+              <>
+                <span className="flex items-center gap-1 shrink-0 text-[#64748B]">
+                  <Phone className="w-3 h-3" />
+                  {order.phone}
+                </span>
+                <span className="shrink-0">·</span>
+              </>
+            )}
+            <Clock className="w-3 h-3 shrink-0" />
+            <span className="shrink-0">{order.time}</span>
+            <span className="shrink-0">·</span>
+            <span className="shrink-0">{order.items.length} producto{order.items.length !== 1 ? "s" : ""}</span>
+            {/* Preview de items: solo en pantallas grandes para no romper en mobile */}
+            <span className="hidden sm:flex items-center gap-1.5 min-w-0">
+              {previewItems.map((item, i) => (
+                <Fragment key={i}>
+                  <span className="shrink-0">·</span>
+                  <span className="text-[#64748B] truncate max-w-[140px]">
+                    {item.name} × {item.quantity}
+                  </span>
+                </Fragment>
+              ))}
+            </span>
+          </div>
+        </div>
+
+        {/* Controls: status pill + price block + actions.
+            En mobile: fila completa con justify-between. En sm+: a la derecha. */}
+        <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-end">
+          <span className={cn("text-xs font-medium px-3 py-1 rounded-full border", statusPill(order.status))}>
+            <span className={cn("inline-block w-1.5 h-1.5 rounded-full mr-1.5 -translate-y-px", statusDot(order.status))} />
+            {order.status}
+          </span>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Price + item count */}
+            <div className="text-right">
+              <div className="text-sm font-bold text-[#0F172A] tabular-nums whitespace-nowrap">
+                {formatPrice(total)}
+              </div>
+              <div className="text-[10px] text-[#94A3B8] tabular-nums">
+                {order.items.length} item{order.items.length !== 1 ? "s" : ""}
+              </div>
+            </div>
+
+            {/* WhatsApp / Copy — icon only */}
+            {hasPhone ? (
+              <button
+                onClick={handleResend}
+                title="Reenviar pedido al cliente por WhatsApp"
+                className="p-1.5 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                onClick={handleCopy}
+                title="Copiar pedido al portapapeles"
+                className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            )}
+
+            <ChevronRight className="w-4 h-4 text-gray-300" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Order Detail Panel (ficha lateral) ────────────────────────────────────────
+
+function OrderDetailPanel({
   order,
   products,
+  onClose,
   onStatusChange,
+  onItemsSaved,
 }: {
   order: Order;
   products: Product[];
-  onStatusChange: (id: string, newStatus: OrderStatus) => void;
+  onClose: () => void;
+  onStatusChange: (key: string, newStatus: OrderStatus) => void;
+  onItemsSaved: (key: string, items: OrderItem[]) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const [items, setItems] = useState<OrderItem[]>(order.items);
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [saving, setSaving] = useState(false);
@@ -401,16 +649,29 @@ function OrderCard({
   const hasPending = pendingItems.length > 0;
 
   const orderNum = String(order.rowNumber - 1).padStart(4, "0");
-  const previewItems = items.slice(0, 2);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
 
   async function handleStatusChange(newStatus: OrderStatus) {
     if (isLegacy) return;
+    const prev = status;
     setStatus(newStatus);
-    onStatusChange(order.id, newStatus);
+    onStatusChange(orderKey(order), newStatus);
     const res = await updateOrderAction(order.id, { status: newStatus });
     if (!res.success) {
-      setStatus(order.status);
-      onStatusChange(order.id, order.status);
+      setStatus(prev);
+      onStatusChange(orderKey(order), prev);
       toast.error(res.error ?? "No se pudo actualizar el estado.");
     }
   }
@@ -456,6 +717,7 @@ function OrderCard({
     setSaving(false);
     if (res.success) {
       toast.success("Pedido actualizado.");
+      onItemsSaved(orderKey(order), items);
     } else {
       toast.error(res.error ?? "Error al guardar.");
       setItems(order.items);
@@ -494,147 +756,99 @@ function OrderCard({
     : [];
 
   return (
-    <div className={cn(
-      "bg-white rounded-xl border border-[#E2E8F0] border-l-4 overflow-hidden transition-all duration-300",
-      isLegacy
-        ? "border-dashed border-gray-300 border-l-gray-300"
-        : cn(
-            "shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)]",
-            statusBorder(status)
-          )
-    )}>
-      {/* ── Card header ── */}
-      <div className="px-4 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        {/* Info: order number + name + phone + badges + meta line */}
-        <div className="flex flex-col gap-1 min-w-0 sm:flex-1">
-          {/* Name row */}
-          <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <span className="text-[11px] font-mono text-[#64748B] shrink-0 bg-[#F1F5F9] rounded-md px-1.5 py-0.5">
-              #{orderNum}
-            </span>
-            <span className="font-semibold text-[#0F172A] truncate">
-              {customerName ?? "Sin nombre"}
-            </span>
-            {hasPending && (
-              <span className="flex items-center gap-1.5 text-[10px] bg-[#FEE2E2] text-[#B91C1C] px-1.5 py-0.5 rounded-full font-semibold uppercase tracking-wide border border-[#DC2626]/25 whitespace-nowrap shrink-0">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#DC2626] animate-pulse" />
-                {pendingItems.length} sin stock
-              </span>
-            )}
-            {isLegacy && (
-              <span className="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-medium border border-gray-200 shrink-0">
-                Legacy
-              </span>
-            )}
-          </div>
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-50 bg-[#0F172A]/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden
+      />
 
-          {/* Meta line: time · N productos · (preview items en sm+) */}
-          <div className="flex items-center gap-1.5 text-xs text-[#94A3B8] min-w-0">
-            {hasPhone && (
-              <>
-                <span className="flex items-center gap-1 shrink-0 text-[#64748B]">
+      {/* Panel */}
+      <motion.div
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+        className={cn(
+          "fixed top-0 right-0 bottom-0 z-50",
+          "w-full sm:w-[520px]",
+          "flex flex-col",
+          "bg-white border-l border-[#E2E8F0]",
+          "shadow-[0_24px_48px_-12px_rgba(15,23,42,0.35)]"
+        )}
+        role="dialog"
+        aria-modal
+        aria-label="Detalle del pedido"
+      >
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-mono text-[#64748B] bg-white rounded-md px-1.5 py-0.5 border border-[#E2E8F0]">
+                #{orderNum}
+              </span>
+              <h2 className="font-bold text-[#0F172A] text-base truncate">
+                {customerName ?? "Sin nombre"}
+              </h2>
+              {isLegacy && (
+                <span className="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-medium border border-gray-200">
+                  Legacy
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-[#64748B] flex-wrap">
+              {hasPhone && (
+                <span className="flex items-center gap-1">
                   <Phone className="w-3 h-3" />
                   {order.phone}
                 </span>
-                <span className="shrink-0">·</span>
-              </>
-            )}
-            <Clock className="w-3 h-3 shrink-0" />
-            <span className="shrink-0">{order.time}</span>
-            <span className="shrink-0">·</span>
-            <span className="shrink-0">{items.length} producto{items.length !== 1 ? "s" : ""}</span>
-            {/* Preview de items: solo en pantallas grandes para no romper en mobile */}
-            <span className="hidden sm:flex items-center gap-1.5 min-w-0">
-              {previewItems.map((item, i) => (
-                <Fragment key={i}>
-                  <span className="shrink-0">·</span>
-                  <span className="text-[#64748B] truncate max-w-[140px]">
-                    {item.name} × {item.quantity}
-                  </span>
-                </Fragment>
-              ))}
-            </span>
-          </div>
-        </div>
-
-        {/* Controls: status pill + price block + actions.
-            En mobile: fila completa con justify-between. En sm+: a la derecha. */}
-        <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-end">
-          {/* Status select with colored dot */}
-          <div className="relative shrink-0">
-            <span className={cn(
-              "absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none z-10",
-              statusDot(status)
-            )} />
-            <select
-              value={status}
-              onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
-              disabled={isLegacy}
-              className={cn(
-                "appearance-none text-xs font-medium pl-6 pr-6 py-1 rounded-full border cursor-pointer",
-                "focus:outline-none focus:ring-2 focus:ring-[#1A56DB]/20",
-                "disabled:opacity-40 disabled:cursor-not-allowed",
-                statusPill(status)
               )}
-            >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-40" />
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Price + item count */}
-            <div className="text-right">
-              <div className="text-sm font-bold text-[#0F172A] tabular-nums whitespace-nowrap">
-                {formatPrice(computedTotal)}
-              </div>
-              <div className="text-[10px] text-[#94A3B8] tabular-nums">
-                {items.length} item{items.length !== 1 ? "s" : ""}
-              </div>
+              {hasPhone && <span>·</span>}
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {order.date}
+              </span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {order.time}
+              </span>
             </div>
-
-            {/* WhatsApp / Copy — icon only */}
-            {hasPhone ? (
-              <button
-                onClick={handleResend}
-                title="Reenviar pedido al cliente por WhatsApp"
-                className="p-1.5 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <button
-                onClick={handleCopy}
-                title="Copiar pedido al portapapeles"
-                className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            )}
-
-            {/* Expand toggle */}
-            <button
-              onClick={() => setExpanded((v) => !v)}
-              aria-label={expanded ? "Contraer" : "Expandir"}
-              className="p-1.5 rounded-lg text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            >
-              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
           </div>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar detalle"
+            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-      </div>
 
-      {/* ── Expanded: items ── */}
-      {expanded && (
-        <div className="border-t border-gray-100 px-4 py-3 flex flex-col gap-3">
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-5">
+          {/* Estado */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+              Estado del pedido
+            </p>
+            <StatusStepper status={status} onChange={handleStatusChange} disabled={isLegacy} />
+          </div>
+
+          {/* Productos */}
           <div className="flex flex-col gap-1">
-            <div className="grid grid-cols-[20px_1fr_80px_90px_28px] gap-2 text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider px-1">
+            <p className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1">
+              Productos
+            </p>
+            <div className="grid grid-cols-[20px_1fr_70px_85px_28px] gap-2 text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider px-1">
               <span />
               <span>Producto</span>
               <span className="text-center">Cant.</span>
-              <span className="text-right">Precio unit.</span>
+              <span className="text-right">Precio</span>
               <span />
             </div>
 
@@ -646,7 +860,7 @@ function OrderCard({
               <div
                 key={`${item.sku}-${idx}`}
                 className={cn(
-                  "grid grid-cols-[20px_1fr_80px_90px_28px] gap-2 items-center py-1.5 px-1 rounded-lg transition-colors",
+                  "grid grid-cols-[20px_1fr_70px_85px_28px] gap-2 items-center py-1.5 px-1 rounded-lg transition-colors",
                   item.pending ? "bg-amber-50/70" : "hover:bg-gray-50"
                 )}
               >
@@ -717,113 +931,134 @@ function OrderCard({
                 </button>
               </div>
             ))}
-          </div>
 
-          {!isLegacy && (
-            <div className="relative">
-              {showSearch ? (
-                <div className="flex flex-col gap-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#94A3B8]" />
-                    <input
-                      autoFocus
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Buscar por nombre o SKU..."
-                      className="w-full pl-8 pr-3 py-2 text-sm border border-[#E2E8F0] rounded-lg focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10"
-                    />
-                  </div>
-                  {filteredProducts.length > 0 && (
-                    <div className="border border-[#E2E8F0] rounded-lg overflow-hidden shadow-sm">
-                      {filteredProducts.map((p) => (
-                        <button
-                          key={p.sku}
-                          onClick={() => handleAddProduct(p)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-[#F8FAFC] transition-colors border-b border-[#F1F5F9] last:border-0"
-                        >
-                          <span className="flex flex-col items-start min-w-0">
-                            <span className="text-[#0F172A] truncate">{p.name}</span>
-                            <span className="text-[10px] text-[#94A3B8] font-mono">{p.sku}</span>
-                          </span>
-                          <span className="text-xs font-semibold text-[#1A56DB] tabular-nums ml-2 shrink-0">
-                            {formatPrice(p.price)}
-                          </span>
-                        </button>
-                      ))}
+            {!isLegacy && (
+              <div className="relative mt-1">
+                {showSearch ? (
+                  <div className="flex flex-col gap-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#94A3B8]" />
+                      <input
+                        autoFocus
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Buscar por nombre o SKU..."
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-[#E2E8F0] rounded-lg focus:outline-none focus:border-[#1A56DB] focus:ring-2 focus:ring-[#1A56DB]/10"
+                      />
                     </div>
-                  )}
+                    {filteredProducts.length > 0 && (
+                      <div className="border border-[#E2E8F0] rounded-lg overflow-hidden shadow-sm">
+                        {filteredProducts.map((p) => (
+                          <button
+                            key={p.sku}
+                            onClick={() => handleAddProduct(p)}
+                            className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-[#F8FAFC] transition-colors border-b border-[#F1F5F9] last:border-0"
+                          >
+                            <span className="flex flex-col items-start min-w-0">
+                              <span className="text-[#0F172A] truncate">{p.name}</span>
+                              <span className="text-[10px] text-[#94A3B8] font-mono">{p.sku}</span>
+                            </span>
+                            <span className="text-xs font-semibold text-[#1A56DB] tabular-nums ml-2 shrink-0">
+                              {formatPrice(p.price)}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => { setShowSearch(false); setSearchQuery(""); }}
+                      className="text-xs text-[#64748B] hover:text-[#0F172A] self-start transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => { setShowSearch(false); setSearchQuery(""); }}
-                    className="text-xs text-[#64748B] hover:text-[#0F172A] self-start transition-colors"
+                    onClick={() => setShowSearch(true)}
+                    className="flex items-center gap-1.5 text-xs text-[#1A56DB] hover:text-[#1447C0] font-medium transition-colors py-1"
                   >
-                    Cancelar
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowSearch(true)}
-                  className="flex items-center gap-1.5 text-xs text-[#1A56DB] hover:text-[#1447C0] font-medium transition-colors py-1"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Agregar producto
-                </button>
-              )}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xs text-[#64748B]">Total</span>
-                {order.discountPercentage > 0 && (
-                  <span className="text-xs text-[#94A3B8]">({order.discountPercentage}% desc.)</span>
-                )}
-                <span className="text-base font-bold text-[#0F172A] tabular-nums">
-                  {formatPrice(computedTotal)}
-                </span>
-              </div>
-
-              {hasChanges && !isLegacy && (
-                <button
-                  onClick={handleSaveItems}
-                  disabled={saving}
-                  className={cn(
-                    "flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all",
-                    "bg-[#1A56DB] hover:bg-[#1447C0] text-white shadow-sm",
-                    "disabled:opacity-60 disabled:cursor-not-allowed"
-                  )}
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  {saving ? "Guardando..." : "Guardar cambios"}
-                </button>
-              )}
-            </div>
-
-            {hasPending && !isLegacy && (
-              <div className="flex gap-2 flex-wrap pt-1">
-                {availableItems.length > 0 && (
-                  <button
-                    onClick={() => handleResendFiltered(availableItems)}
-                    className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    Reenviar disponibles ({availableItems.length})
+                    <Plus className="w-3.5 h-3.5" />
+                    Agregar producto
                   </button>
                 )}
-                <button
-                  onClick={() => handleResendFiltered(pendingItems)}
-                  className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors"
-                >
-                  <Clock className="w-3.5 h-3.5" />
-                  Reenviar pendientes ({pendingItems.length})
-                </button>
               </div>
             )}
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Footer */}
+        <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 flex flex-col gap-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs text-[#64748B]">Total</span>
+              {order.discountPercentage > 0 && (
+                <span className="text-xs text-[#94A3B8]">({order.discountPercentage}% desc.)</span>
+              )}
+              <span className="text-lg font-bold text-[#0F172A] tabular-nums">
+                {formatPrice(computedTotal)}
+              </span>
+            </div>
+
+            {hasChanges && !isLegacy && (
+              <button
+                onClick={handleSaveItems}
+                disabled={saving}
+                className={cn(
+                  "flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all",
+                  "bg-[#1A56DB] hover:bg-[#1447C0] text-white shadow-sm",
+                  "disabled:opacity-60 disabled:cursor-not-allowed"
+                )}
+              >
+                <Save className="w-3.5 h-3.5" />
+                {saving ? "Guardando..." : "Guardar cambios"}
+              </button>
+            )}
+          </div>
+
+          {hasPending && !isLegacy && (
+            <div className="flex gap-2 flex-wrap">
+              {availableItems.length > 0 && (
+                <button
+                  onClick={() => handleResendFiltered(availableItems)}
+                  className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  Reenviar disponibles ({availableItems.length})
+                </button>
+              )}
+              <button
+                onClick={() => handleResendFiltered(pendingItems)}
+                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                Reenviar pendientes ({pendingItems.length})
+              </button>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            {hasPhone ? (
+              <button
+                onClick={handleResend}
+                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-lg bg-[#25D366]/10 text-[#128C3E] hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Reenviar por WhatsApp
+              </button>
+            ) : (
+              <button
+                onClick={handleCopy}
+                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors"
+              >
+                {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Copiado" : "Copiar pedido"}
+              </button>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </>
   );
 }
 
@@ -839,10 +1074,17 @@ export default function OrdersClient({
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [filter, setFilter] = useState<OrderStatus | "Todos">("Todos");
   const [dateFilter, setDateFilter] = useState<string>(todayInputValue);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
-  function handleStatusChange(id: string, newStatus: OrderStatus) {
+  function handleStatusChange(key: string, newStatus: OrderStatus) {
     setOrders((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
+      prev.map((o) => (orderKey(o) === key ? { ...o, status: newStatus } : o))
+    );
+  }
+
+  function handleItemsSaved(key: string, items: OrderItem[]) {
+    setOrders((prev) =>
+      prev.map((o) => (orderKey(o) === key ? { ...o, items } : o))
     );
   }
 
@@ -867,6 +1109,8 @@ export default function OrdersClient({
   const visibleTabs = (["Todos", "Generado", "Aprobado", "Empaquetado", "Cancelado"] as const).filter(
     (f) => f === "Todos" || counts[f] > 0 || filter === f
   );
+
+  const selectedOrder = selectedKey ? orders.find((o) => orderKey(o) === selectedKey) ?? null : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -927,20 +1171,30 @@ export default function OrdersClient({
         <div className="flex flex-col gap-3">
           {filtered.map((order, index) => (
             <motion.div
-              key={order.id || `${order.date}-${order.time}-${order.customerName}`}
+              key={orderKey(order)}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.4), ease: "easeOut" }}
             >
-              <OrderCard
-                order={order}
-                products={products}
-                onStatusChange={handleStatusChange}
-              />
+              <OrderRow order={order} onOpen={setSelectedKey} />
             </motion.div>
           ))}
         </div>
       )}
+
+      {/* Detail panel */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <OrderDetailPanel
+            key={orderKey(selectedOrder)}
+            order={selectedOrder}
+            products={products}
+            onClose={() => setSelectedKey(null)}
+            onStatusChange={handleStatusChange}
+            onItemsSaved={handleItemsSaved}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
