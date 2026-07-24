@@ -79,6 +79,15 @@ function orderKey(o: Order): string {
   return o.id || `${o.date}-${o.time}-${o.customerName}`;
 }
 
+/** Ruta del PDF del pedido. Los legacy (sin UUID) se referencian por fila. */
+function invoiceUrl(o: Order): string {
+  return `/api/admin/orders/${encodeURIComponent(o.id || `row-${o.rowNumber}`)}/invoice`;
+}
+
+function openInvoice(o: Order) {
+  window.open(invoiceUrl(o), "_blank", "noopener,noreferrer");
+}
+
 // ─── KPI Bar ─────────────────────────────────────────────────────────────────
 
 function KpiItem({
@@ -589,6 +598,18 @@ function OrderRow({
               </div>
             </div>
 
+            {/* Visor PDF — abre el detalle del pedido en otra pestaña */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openInvoice(order);
+              }}
+              title="Ver PDF del pedido"
+              className="p-1.5 rounded-lg bg-[#1A56DB]/10 text-[#1A56DB] hover:bg-[#1A56DB]/20 border border-[#1A56DB]/30 transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5" />
+            </button>
+
             {/* WhatsApp / Copy — icon only */}
             {hasPhone ? (
               <button
@@ -1056,6 +1077,20 @@ function OrderDetailPanel({
                 {copied ? "Copiado" : "Copiar pedido"}
               </button>
             )}
+
+            <button
+              onClick={() => {
+                if (hasChanges) {
+                  toast.info("El PDF muestra los datos guardados. Guardá los cambios primero.");
+                }
+                openInvoice(order);
+              }}
+              title="Ver PDF del pedido en otra pestaña"
+              className="flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-lg bg-[#1A56DB]/10 text-[#1A56DB] hover:bg-[#1A56DB]/20 border border-[#1A56DB]/30 transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+              Ver PDF
+            </button>
           </div>
         </div>
       </motion.div>
