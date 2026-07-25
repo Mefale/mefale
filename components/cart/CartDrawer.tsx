@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { X, Minus, Plus, Trash2, MessageCircle, ShoppingCart, Tag } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -130,7 +130,7 @@ export function CartDrawer() {
       {isDrawerOpen && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <m.div
             ref={overlayRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -142,7 +142,7 @@ export function CartDrawer() {
           />
 
           {/* Panel */}
-          <motion.div
+          <m.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -391,7 +391,7 @@ export function CartDrawer() {
                 </button>
               </div>
             )}
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

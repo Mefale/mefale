@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, Zap } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { formatPrice } from "@/utils/format-price";
 import { discountPercent } from "@/utils/discount-percent";
@@ -43,7 +43,7 @@ export function ProductModal({ product, onClose }: Props) {
       {product && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <m.div
             key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -54,7 +54,7 @@ export function ProductModal({ product, onClose }: Props) {
           />
 
           {/* Modal */}
-          <motion.div
+          <m.div
             key="modal"
             initial={{ opacity: 0, scale: 0.95, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -155,7 +155,7 @@ export function ProductModal({ product, onClose }: Props) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

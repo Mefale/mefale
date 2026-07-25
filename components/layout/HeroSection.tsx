@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight, Zap, ShieldCheck, Truck, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
@@ -44,7 +44,7 @@ export function HeroSection() {
       <Container className="relative pt-28 pb-20">
         <div className="max-w-3xl">
           {/* Tag */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
@@ -53,10 +53,10 @@ export function HeroSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#1A56DB] animate-pulse" />
               Distribuidora mayorista
             </span>
-          </motion.div>
+          </m.div>
 
           {/* Headline */}
-          <motion.h1
+          <m.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
@@ -68,10 +68,10 @@ export function HeroSection() {
               <span className="absolute -bottom-1 left-0 w-full h-1 bg-[#1A56DB]/20 rounded-full" />
             </span>{" "}
             e Iluminación
-          </motion.h1>
+          </m.h1>
 
           {/* Subheadline */}
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.14, ease: "easeOut" }}
@@ -79,10 +79,10 @@ export function HeroSection() {
           >
             Catálogo completo con precios de distribuidor. Calidad certificada
             para instaladores, técnicos y comercios.
-          </motion.p>
+          </m.p>
 
           {/* CTAs */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
@@ -113,10 +113,10 @@ export function HeroSection() {
                 Consultar por WhatsApp
               </Link>
             </Button>
-          </motion.div>
+          </m.div>
 
           {/* Feature pills */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.26, ease: "easeOut" }}
@@ -133,10 +133,10 @@ export function HeroSection() {
                 {label}
               </div>
             ))}
-          </motion.div>
+          </m.div>
 
           {/* Brand strip */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.32, ease: "easeOut" }}
@@ -163,7 +163,7 @@ export function HeroSection() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </Container>
     </section>
