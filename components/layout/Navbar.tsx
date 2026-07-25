@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ShoppingCart } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { Container } from "./Container";
 import { cn } from "@/lib/utils";
 import { useCart, useCartHydrated } from "@/hooks/use-cart";
@@ -104,7 +104,7 @@ export function Navbar() {
       {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -126,7 +126,7 @@ export function Navbar() {
                 ))}
               </ul>
             </Container>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </header>

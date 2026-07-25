@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Container } from "@/components/layout/Container";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { ProductModal } from "@/components/product/ProductModal";
@@ -148,7 +148,7 @@ function OfferCard({
   const pct = discountPercent(product);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05, ease: "easeOut" }}
@@ -233,6 +233,6 @@ function OfferCard({
           <AddToCartButton product={product} />
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

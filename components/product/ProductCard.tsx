@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Zap, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
   const pct = discountPercent(product);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.04, ease: "easeOut" }}
@@ -127,6 +127,6 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
           <AddToCartButton product={product} className="mt-1.5" />
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

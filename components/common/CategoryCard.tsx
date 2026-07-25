@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/category";
@@ -14,7 +14,7 @@ type Props = {
 
 export function CategoryCard({ category, index = 0 }: Props) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.06, ease: "easeOut" }}
@@ -54,6 +54,6 @@ export function CategoryCard({ category, index = 0 }: Props) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </m.div>
   );
 }
