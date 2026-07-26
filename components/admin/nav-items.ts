@@ -1,4 +1,4 @@
-import { Upload, Tag, ClipboardList, Package } from "lucide-react";
+import { Upload, Tag, ClipboardList, Package, Share2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AdminNavItem = {
@@ -13,4 +13,5 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/products", label: "Productos", icon: Package },
   { href: "/admin/offers", label: "Ofertas", icon: Tag },
   { href: "/admin/import", label: "Importar productos", icon: Upload },
+  { href: "/admin/share", label: "Compartir productos", icon: Share2 },
 ];
