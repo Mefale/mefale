@@ -71,6 +71,8 @@ git push
 ```
 ```
 
+> El comando a mostrar es siempre `git push` pelado (no el wrapper `wsl -e bash -lc "..."`).
+> **El push se corre desde dentro de WSL**, no desde la ruta `\\wsl$` de Windows (esa da error de certificado SSL). Aclaralo en una línea aparte, fuera del bloque de comando.
 > **Nunca** usar `git add .` ni `git add -A` — puede incluir archivos sensibles o no deseados.
 > Listá todos los archivos en **una sola línea** `git add archivo1 archivo2 …` — más compacto y seguro.
 > Reemplazá los nombres de archivo con los reales del `git status`, no con `<archivos>`.
@@ -147,10 +149,8 @@ git commit -m "feat(scope): description"
 git push
 ```
 
-> Si es la primera vez que subís este branch:
-> ```bash
-> git push -u origin <nombre-del-branch>
-> ```
+> El bloque de comando muestra solo `git push` (o `git push -u origin <branch>` la primera vez).
+> Debajo, en texto, aclarar que se corre desde dentro de WSL (la ruta `\\wsl$` de Windows falla por certificado SSL).
 
 ---
 
