@@ -6,20 +6,22 @@ import { OffersSection } from "@/components/product/OffersSection";
 import { ProductGridSkeleton } from "@/components/product/ProductGridSkeleton";
 import { CatalogError } from "@/components/product/CatalogError";
 import { getProducts, getCategories } from "@/lib/sheets/products";
-import { queryProducts } from "@/utils/query-products";
+import { queryProducts, type CatalogSort } from "@/utils/query-products";
 
 type Props = {
-  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string; sort?: string }>;
 };
 
 async function HomeCatalogSection({
   category,
   q,
   page,
+  sort,
 }: {
   category?: string;
   q?: string;
   page: number;
+  sort?: string;
 }) {
   let products, categories;
   try {
@@ -35,7 +37,7 @@ async function HomeCatalogSection({
   }
 
   const offerProducts = products.filter((p) => p.offer);
-  const result = queryProducts(products, { category, q, page });
+  const result = queryProducts(products, { category, q, page, sort: sort as CatalogSort });
   const showOffers = !category && !q && offerProducts.length > 0;
 
   return (
@@ -51,6 +53,7 @@ async function HomeCatalogSection({
             query={q ?? ""}
             category={category}
             categories={categories}
+            sort={sort}
           />
         </Container>
       </section>
@@ -59,7 +62,7 @@ async function HomeCatalogSection({
 }
 
 export default async function HomePage({ searchParams }: Props) {
-  const { category, q, page } = await searchParams;
+  const { category, q, page, sort } = await searchParams;
   const pageNum = Number(page) || 1;
 
   return (
@@ -80,7 +83,7 @@ export default async function HomePage({ searchParams }: Props) {
           </section>
         }
       >
-        <HomeCatalogSection category={category} q={q} page={pageNum} />
+        <HomeCatalogSection category={category} q={q} page={pageNum} sort={sort} />
       </Suspense>
     </>
   );

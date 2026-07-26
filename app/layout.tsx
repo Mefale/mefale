@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,11 +15,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Distribuidora Graser | Materiales Electricos e Iluminacion",
     template: "%s | Distribuidora Graser",
   },
   description: "Distribuidora de materiales electricos e iluminacion.",
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    siteName: SITE_NAME,
+    url: SITE_URL,
+    title: "Distribuidora Graser | Materiales Electricos e Iluminacion",
+    description: "Distribuidora de materiales electricos e iluminacion.",
+  },
   icons: {
     icon: [
       { url: "/dgs-favicon-16.png", sizes: "16x16", type: "image/png" },

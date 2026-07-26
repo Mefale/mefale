@@ -105,6 +105,14 @@ export const getProducts = unstable_cache(
   { revalidate: 3600, tags: ["products"] }
 );
 
+// Busca un producto por SKU (case-insensitive). Deriva de getProducts (cacheado),
+// así la ficha individual no golpea Sheets en cada request.
+export async function getProductBySku(sku: string): Promise<Product | undefined> {
+  const target = sku.trim().toLowerCase();
+  const products = await getProducts();
+  return products.find((p) => p.sku.toLowerCase() === target || p.id === target);
+}
+
 // NO envolver en unstable_cache: llamar a otra función cacheada (getProducts)
 // dentro de unstable_cache falla en producción y devuelve vacío. Como getProducts
 // ya está cacheado, derivamos las categorías directo de su resultado.

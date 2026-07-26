@@ -5,9 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2, MessageCircle, ShoppingCart, ArrowLeft } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { toast } from "sonner";
 import { useCart, useCartHydrated } from "@/hooks/use-cart";
 import { formatPrice } from "@/utils/format-price";
 import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp/build-message";
+import { trackOrder } from "@/lib/orders/track-order";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +36,27 @@ export default function CartPage() {
     const { name } = getValues();
     const message = buildWhatsAppMessage(items, { name });
     window.open(buildWhatsAppUrl(message), "_blank", "noopener,noreferrer");
+
+    // Registrar el pedido en Sheets (igual que el drawer). Antes esta vista NO
+    // registraba nada, así que los pedidos desde /cart se perdían.
+    trackOrder({
+      customerName: name ?? "",
+      phone: "-",
+      items: items.map((i) => ({
+        sku: i.sku,
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      })),
+      total: subtotal(),
+      discountPercentage: 0,
+    }).then((ok) => {
+      if (!ok) {
+        toast.error("No pudimos registrar tu pedido", {
+          description: "Enviá igual el mensaje de WhatsApp y te confirmamos.",
+        });
+      }
+    });
   }
 
   if (!hydrated) {

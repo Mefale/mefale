@@ -8,10 +8,13 @@ import { X, Minus, Plus, Trash2, MessageCircle, ShoppingCart, Tag } from "lucide
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCart, useCartHydrated } from "@/hooks/use-cart";
 import { formatPrice } from "@/utils/format-price";
 import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp/build-message";
+import { trackOrder } from "@/lib/orders/track-order";
+import { getCartPrices } from "@/lib/cart/actions";
 
 const customerSchema = z.object({
   name: z.string().optional(),
@@ -26,6 +29,7 @@ export function CartDrawer() {
     closeDrawer,
     remove,
     setQuantity,
+    updatePrices,
     clear,
     subtotal,
     itemCount,
@@ -78,6 +82,44 @@ export function CartDrawer() {
     return () => document.removeEventListener("keydown", handler);
   }, [closeDrawer]);
 
+  // Al abrir el carrito, reconciliar precios/disponibilidad contra el catálogo.
+  // Los precios se congelan en localStorage al agregar; si el dueño los cambió en
+  // Sheets, acá los traemos a los vigentes y avisamos al cliente.
+  useEffect(() => {
+    if (!isDrawerOpen || !hydrated || items.length === 0) return;
+    let cancelled = false;
+    getCartPrices(items.map((i) => i.sku))
+      .then((infos) => {
+        if (cancelled) return;
+        const bySku = new Map(items.map((i) => [i.sku.toLowerCase(), i]));
+        const updates: { id: string; price: number; name?: string }[] = [];
+        let unavailable = false;
+        for (const info of infos) {
+          const item = bySku.get(info.sku.toLowerCase());
+          if (!item) continue;
+          if (!info.exists) {
+            unavailable = true;
+            continue;
+          }
+          if (Math.round(info.price * 100) !== Math.round(item.price * 100)) {
+            updates.push({ id: item.id, price: info.price, name: info.name });
+          }
+        }
+        if (updates.length) {
+          updatePrices(updates);
+          toast.info("Actualizamos los precios de tu carrito a los vigentes.");
+        }
+        if (unavailable) {
+          toast.warning("Algunos productos de tu carrito ya no están disponibles.");
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDrawerOpen, hydrated]);
+
   function handleWhatsApp() {
     const { name, phone } = getValues();
     setCustomerName(name ?? "");
@@ -87,23 +129,26 @@ export function CartDrawer() {
     const url = buildWhatsAppUrl(message);
     window.open(url, "_blank", "noopener,noreferrer");
 
-    // Fire-and-forget: registrar el pedido en Sheets sin bloquear
-    fetch("/api/track-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName: name ?? "",
-        phone: phone ?? "-",
-        items: items.map((i) => ({
-          sku: i.sku,
-          name: i.name,
-          quantity: i.quantity,
-          price: i.price,
-        })),
-        total: subtotal() * (1 - effectiveDiscount / 100),
-        discountPercentage: effectiveDiscount,
-      }),
-    }).catch(() => {});
+    // Registrar el pedido en Sheets (con reintento). Si falla, avisamos al
+    // cliente para que reenvíe el mensaje en vez de perderlo en silencio.
+    trackOrder({
+      customerName: name ?? "",
+      phone: phone ?? "-",
+      items: items.map((i) => ({
+        sku: i.sku,
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      })),
+      total: subtotal() * (1 - effectiveDiscount / 100),
+      discountPercentage: effectiveDiscount,
+    }).then((ok) => {
+      if (!ok) {
+        toast.error("No pudimos registrar tu pedido", {
+          description: "Enviá igual el mensaje de WhatsApp y te confirmamos.",
+        });
+      }
+    });
   }
 
   function handleToggleDiscount(checked: boolean) {

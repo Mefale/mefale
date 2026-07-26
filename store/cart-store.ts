@@ -17,6 +17,7 @@ type CartState = {
   add: (product: Product, quantity?: number) => void;
   remove: (id: string) => void;
   setQuantity: (id: string, quantity: number) => void;
+  updatePrices: (updates: { id: string; price: number; name?: string }[]) => void;
   clear: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -80,6 +81,18 @@ export const useCartStore = create<CartState>()(
           items: get().items.map((i) =>
             i.id === id ? { ...i, quantity } : i
           ),
+        });
+      },
+
+      // Reconcilia precios/nombres del carrito con los vigentes del catálogo
+      // (ver getCartPrices). Solo toca los items indicados.
+      updatePrices: (updates) => {
+        const byId = new Map(updates.map((u) => [u.id, u]));
+        set({
+          items: get().items.map((i) => {
+            const u = byId.get(i.id);
+            return u ? { ...i, price: u.price, name: u.name ?? i.name } : i;
+          }),
         });
       },
 

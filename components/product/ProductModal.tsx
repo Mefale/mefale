@@ -151,6 +151,9 @@ export function ProductModal({ product, onClose }: Props) {
 
                   <div className="mt-3 pt-4 border-t border-[#F1F5F9]">
                     <AddToCartButton product={product} />
+                    {/* Link a la ficha completa (/products/[sku]) oculto por ahora.
+                        La página existe y es compartible por URL; falta decidir
+                        dónde ubicar el acceso visible. */}
                   </div>
                 </div>
               </div>

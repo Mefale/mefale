@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { importProductsToSheet, type ImportRow } from "@/lib/sheets/import";
-import { revalidatePath } from "next/cache";
+import { revalidateTag as _revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -14,7 +14,12 @@ const ImportRowSchema = z.object({
 
 const BodySchema = z.object({
   rows: z.array(ImportRowSchema).min(1),
+  mode: z.enum(["merge", "replace"]).default("merge"),
 });
+
+// Mismo workaround que products-crud.ts: en Next 16.2 el tipo de revalidateTag
+// pide un segundo argumento, pero en runtime acepta solo el tag.
+const revalidateTag = _revalidateTag as (tag: string) => void;
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -38,8 +43,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await importProductsToSheet(parsed.data.rows as ImportRow[]);
-    revalidatePath("/", "layout");
+    const result = await importProductsToSheet(
+      parsed.data.rows as ImportRow[],
+      parsed.data.mode
+    );
+    revalidateTag("products");
     return NextResponse.json(result);
   } catch (err) {
     console.error("[import] Error writing to Sheets:", err);

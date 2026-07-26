@@ -8,7 +8,7 @@ import {
   useTransition,
 } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X, ArrowDownUp, ChevronDown } from "lucide-react";
 import { CategoryCombobox } from "./CategoryCombobox";
 import { ProductGrid } from "./ProductGrid";
 import { ProductModal } from "./ProductModal";
@@ -24,6 +24,7 @@ type Props = {
   query: string;
   category?: string;
   categories: string[];
+  sort?: string;
 };
 
 const NAVBAR_OFFSET = 72;
@@ -36,6 +37,7 @@ export function ProductCatalog({
   query,
   category,
   categories,
+  sort,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -53,7 +55,7 @@ export function ProductCatalog({
   }, [query]);
 
   const pushParams = useCallback(
-    (next: { q?: string; page?: number; category?: string | null }) => {
+    (next: { q?: string; page?: number; category?: string | null; sort?: string }) => {
       const params = new URLSearchParams(searchParams.toString());
 
       if (next.category !== undefined) {
@@ -63,6 +65,10 @@ export function ProductCatalog({
       if (next.q !== undefined) {
         if (next.q) params.set("q", next.q);
         else params.delete("q");
+      }
+      if (next.sort !== undefined) {
+        if (next.sort) params.set("sort", next.sort);
+        else params.delete("sort");
       }
       if (next.page !== undefined) {
         if (next.page > 1) params.set("page", String(next.page));
@@ -128,6 +134,21 @@ export function ProductCatalog({
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
+          </div>
+          {/* Ordenar por precio */}
+          <div className="relative sm:w-52 shrink-0">
+            <ArrowDownUp className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
+            <select
+              aria-label="Ordenar productos"
+              value={sort ?? ""}
+              onChange={(e) => pushParams({ sort: e.target.value, page: 1 })}
+              className="w-full appearance-none bg-white border border-[#E2E8F0] shadow-sm rounded-lg pl-10 pr-8 py-2.5 text-sm text-[#0F172A] focus:outline-none focus:border-[#1A56DB] focus:ring-4 focus:ring-[#1A56DB]/10 transition-colors cursor-pointer"
+            >
+              <option value="">Ordenar por</option>
+              <option value="price-asc">Precio: menor a mayor</option>
+              <option value="price-desc">Precio: mayor a menor</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
           </div>
         </div>
       </div>

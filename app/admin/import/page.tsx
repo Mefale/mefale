@@ -17,7 +17,10 @@ interface ImportResult {
   total: number;
   updated: number;
   created: number;
+  removed: number;
 }
+
+type ImportMode = "merge" | "replace";
 
 // Map Excel header names to ImportRow fields
 const HEADER_MAP: Record<string, keyof ImportRow> = {
@@ -91,6 +94,7 @@ function parseXlsx(file: File): Promise<PreviewData> {
 export default function ImportarPage() {
   const [stage, setStage] = useState<Stage>("idle");
   const [preview, setPreview] = useState<PreviewData | null>(null);
+  const [mode, setMode] = useState<ImportMode>("merge");
   const [result, setResult] = useState<ImportResult | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -120,7 +124,7 @@ export default function ImportarPage() {
       const res = await fetch("/api/admin/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rows: preview.rows }),
+        body: JSON.stringify({ rows: preview.rows, mode }),
       });
 
       if (!res.ok) {
@@ -146,6 +150,7 @@ export default function ImportarPage() {
   function handleReset() {
     setStage("idle");
     setPreview(null);
+    setMode("merge");
     setResult(null);
     setErrorMsg("");
     if (fileRef.current) fileRef.current.value = "";
@@ -156,7 +161,7 @@ export default function ImportarPage() {
       <div className="mb-6">
         <h1 className="text-xl font-bold text-[#0F172A]">Importar productos</h1>
         <p className="text-sm text-[#64748B] mt-0.5">
-          Subí el Excel diario. Se actualizan SKU, familia, descripción y precio. Los campos <strong>Precio de Descuento</strong> y <strong>Oferta</strong> no se tocan.
+          Subí el Excel diario. Se actualizan SKU, familia, descripción y precio. Los campos <strong>Precio de Descuento</strong> y <strong>Oferta</strong> no se tocan. Antes de confirmar elegís si conservar o reemplazar los productos ausentes.
         </p>
       </div>
 
@@ -218,6 +223,47 @@ export default function ImportarPage() {
             )}
           </div>
 
+          {/* Modo de importación */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-gray-700">Modo de importación</p>
+            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 cursor-pointer hover:border-gray-300 transition-colors">
+              <input
+                type="radio"
+                name="import-mode"
+                checked={mode === "merge"}
+                onChange={() => setMode("merge")}
+                className="mt-0.5 w-4 h-4 text-[#1A56DB]"
+              />
+              <span className="text-sm">
+                <span className="font-medium text-gray-800">Solo actualizar y agregar</span>{" "}
+                <span className="text-xs text-gray-500">(recomendado)</span>
+                <span className="block text-xs text-gray-500 mt-0.5">
+                  Los productos que no estén en el Excel se conservan.
+                </span>
+              </span>
+            </label>
+            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 cursor-pointer hover:border-gray-300 transition-colors">
+              <input
+                type="radio"
+                name="import-mode"
+                checked={mode === "replace"}
+                onChange={() => setMode("replace")}
+                className="mt-0.5 w-4 h-4 text-[#DC2626]"
+              />
+              <span className="text-sm">
+                <span className="font-medium text-gray-800">Reemplazar todo el catálogo</span>
+                <span className="block text-xs text-gray-500 mt-0.5">
+                  Los productos que no estén en el Excel se <strong>eliminan</strong>.
+                </span>
+              </span>
+            </label>
+            {mode === "replace" && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+                ⚠️ Se eliminarán del catálogo todos los SKU que no estén en este archivo. Asegurate de subir el listado completo.
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-3">
             <button
               onClick={handleImport}
@@ -254,6 +300,9 @@ export default function ImportarPage() {
               <li>Total procesados: <strong>{result.total}</strong></li>
               <li>Actualizados: <strong>{result.updated}</strong></li>
               <li>Nuevos: <strong>{result.created}</strong></li>
+              {result.removed > 0 && (
+                <li className="text-red-700">Eliminados: <strong>{result.removed}</strong></li>
+              )}
             </ul>
           </div>
           <button

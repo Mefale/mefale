@@ -2,11 +2,19 @@ import type { Product } from "@/types/product";
 
 export const CATALOG_PAGE_SIZE = 40;
 
+export type CatalogSort = "price-asc" | "price-desc";
+
 export type CatalogQuery = {
   category?: string;
   q?: string;
   page: number;
+  sort?: CatalogSort;
 };
+
+/** Precio efectivo (con descuento si aplica), usado para ordenar. */
+function effectivePrice(p: { price: number; discountPrice?: number }): number {
+  return p.discountPrice ?? p.price;
+}
 
 export type CatalogResult = {
   items: Product[];
@@ -21,7 +29,7 @@ export type CatalogResult = {
  */
 export function queryProducts(
   products: Product[],
-  { category, q, page }: CatalogQuery
+  { category, q, page, sort }: CatalogQuery
 ): CatalogResult {
   let list = category ? products.filter((p) => p.category === category) : products;
 
@@ -32,6 +40,13 @@ export function queryProducts(
         p.name.toLowerCase().includes(query) ||
         p.sku.toLowerCase().includes(query)
     );
+  }
+
+  if (sort === "price-asc" || sort === "price-desc") {
+    // Copiar antes de ordenar: `list` puede ser el array cacheado de getProducts
+    // y no debemos mutarlo.
+    const dir = sort === "price-asc" ? 1 : -1;
+    list = [...list].sort((a, b) => (effectivePrice(a) - effectivePrice(b)) * dir);
   }
 
   const total = list.length;

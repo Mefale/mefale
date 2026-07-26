@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/common/SectionHeader";
 import { OffersSection } from "@/components/product/OffersSection";
 import { CatalogError } from "@/components/product/CatalogError";
 import { getProducts, getCategories } from "@/lib/sheets/products";
-import { queryProducts } from "@/utils/query-products";
+import { queryProducts, type CatalogSort } from "@/utils/query-products";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,17 +16,19 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string; sort?: string }>;
 };
 
 async function CatalogSection({
   category,
   q,
   page,
+  sort,
 }: {
   category?: string;
   q?: string;
   page: number;
+  sort?: string;
 }) {
   let products, categories;
   try {
@@ -40,7 +42,7 @@ async function CatalogSection({
   }
 
   const offerProducts = products.filter((p) => p.offer);
-  const result = queryProducts(products, { category, q, page });
+  const result = queryProducts(products, { category, q, page, sort: sort as CatalogSort });
   const showOffers = !category && !q && offerProducts.length > 0;
 
   return (
@@ -66,6 +68,7 @@ async function CatalogSection({
             query={q ?? ""}
             category={category}
             categories={categories}
+            sort={sort}
           />
         </div>
       </Container>
@@ -74,7 +77,7 @@ async function CatalogSection({
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { category, q, page } = await searchParams;
+  const { category, q, page, sort } = await searchParams;
   const pageNum = Number(page) || 1;
 
   return (
@@ -95,7 +98,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           </Container>
         }
       >
-        <CatalogSection category={category} q={q} page={pageNum} />
+        <CatalogSection category={category} q={q} page={pageNum} sort={sort} />
       </Suspense>
     </div>
   );
