@@ -1,14 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, X, Plus, Trash2, MessageCircle, Copy, Info } from "lucide-react";
+import {
+  Search,
+  X,
+  Plus,
+  Trash2,
+  MessageCircle,
+  Copy,
+  Info,
+  ExternalLink,
+  Link2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/format-price";
 import {
   buildProductShareMessage,
   buildWhatsAppUrlForNumber,
 } from "@/lib/whatsapp/build-message";
+import { selectionUrl, MAX_SELECTION_ITEMS } from "@/lib/site";
 import type { Product } from "@/types/product";
 
 const DEFAULT_INTRO = "¡Hola! Te paso estas opciones:";
@@ -22,6 +33,13 @@ export default function ShareClient({ products }: Props) {
   const [selected, setSelected] = useState<Product[]>([]);
   const [phone, setPhone] = useState("");
   const [intro, setIntro] = useState(DEFAULT_INTRO);
+  // Dominio real desde donde se usa el panel: garantiza que el link apunte a
+  // producción cuando el admin corre en producción, sin depender de env vars.
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   // Resultados del buscador: por nombre/SKU, excluyendo los ya elegidos.
   const results = useMemo(() => {
@@ -46,10 +64,22 @@ export default function ShareClient({ products }: Props) {
           price: p.price,
           discountPrice: p.discountPrice,
         })),
-        intro
+        intro,
+        origin
       ),
-    [selected, intro]
+    [selected, intro, origin]
   );
+
+  const shareLink = useMemo(
+    () =>
+      selected.length > 0
+        ? selectionUrl(selected.map((p) => p.sku), origin)
+        : "",
+    [selected, origin]
+  );
+
+  const overLimit = selected.length > MAX_SELECTION_ITEMS;
+  const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(origin);
 
   function addProduct(product: Product) {
     setSelected((prev) =>
@@ -88,6 +118,16 @@ export default function ShareClient({ products }: Props) {
       toast.success("Mensaje copiado al portapapeles");
     } catch {
       toast.error("No se pudo copiar el mensaje.");
+    }
+  }
+
+  async function handleCopyLink() {
+    if (!shareLink) return;
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      toast.success("Link copiado al portapapeles");
+    } catch {
+      toast.error("No se pudo copiar el link.");
     }
   }
 
@@ -228,13 +268,67 @@ export default function ShareClient({ products }: Props) {
           />
         </div>
 
-        <div className="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2.5 text-xs text-blue-800">
-          <Info className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>
-            WhatsApp muestra la tarjeta con foto de un solo link por mensaje. Los
-            demás llegan igual como links clickeables (cada uno abre su ficha).
-          </span>
-        </div>
+        {/* Link de la selección */}
+        {shareLink && (
+          <div>
+            <p className="block text-sm font-medium text-[#0F172A] mb-1.5">
+              Link de la selección
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="flex-1 min-w-0 flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2">
+                <Link2 className="w-4 h-4 shrink-0 text-[#94A3B8]" />
+                <span className="truncate text-xs text-[#475569] font-mono">
+                  {shareLink}
+                </span>
+              </span>
+              <button
+                onClick={handleCopyLink}
+                aria-label="Copiar link"
+                className="p-2.5 rounded-lg border border-[#E2E8F0] bg-white text-[#475569] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-colors"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+              <a
+                href={shareLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir link"
+                className="p-2.5 rounded-lg border border-[#E2E8F0] bg-white text-[#475569] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        )}
+
+        {isLocalhost && shareLink && (
+          <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs text-amber-800">
+            <Info className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              Estás en <strong>localhost</strong>: este link solo funciona en tu
+              computadora. Para enviárselo a un cliente, usá el panel desde el
+              sitio publicado.
+            </span>
+          </div>
+        )}
+
+        {overLimit ? (
+          <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs text-amber-800">
+            <Info className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              El link admite hasta {MAX_SELECTION_ITEMS} productos. Los que estén
+              por encima de ese límite no van a aparecer en la pantalla del cliente.
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2.5 text-xs text-blue-800">
+            <Info className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              El cliente recibe el desglose y un solo link con todos los productos
+              juntos, donde puede agregarlos al carrito y consultarte.
+            </span>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-2">
           <button

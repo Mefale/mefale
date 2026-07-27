@@ -11,8 +11,8 @@ export default async function SharePage() {
       <div className="mb-6">
         <h1 className="text-xl font-bold text-[#0F172A]">Compartir productos</h1>
         <p className="text-sm text-[#64748B] mt-0.5">
-          Elegí varios productos y enviáselos a un cliente por WhatsApp. Le llegan
-          los links a cada ficha (con foto y precio).
+          Elegí varios productos y enviáselos a un cliente por WhatsApp. Recibe el
+          desglose y un solo link con todos juntos, listo para agregar al carrito.
         </p>
       </div>
 

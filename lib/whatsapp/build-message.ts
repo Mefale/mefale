@@ -1,5 +1,5 @@
 import { formatPrice } from "@/utils/format-price";
-import { productUrl } from "@/lib/site";
+import { selectionUrl } from "@/lib/site";
 import type { CartItem } from "@/types/cart";
 
 type Customer = {
@@ -50,19 +50,30 @@ export function buildWhatsAppMessage(
   return parts.join("\n");
 }
 
-// Mensaje para compartir una selección de productos con un cliente, con el
-// link a la ficha de cada uno (/products/[sku]) para que abra su preview.
-// Usado por el admin (ver app/admin/share). El link va en línea aparte para
-// que WhatsApp lo detecte como enlace.
+// Mensaje para compartir una selección de productos con un cliente: desglose
+// de nombre + precio, y UN solo link a la pantalla /selection que los muestra
+// todos juntos. Usado por el admin (ver app/admin/share).
 export function buildProductShareMessage(
   products: { sku: string; name: string; price: number; discountPrice?: number }[],
-  intro?: string
+  intro?: string,
+  baseUrl?: string
 ): string {
   const header = intro?.trim() || "¡Hola! Te paso estas opciones:";
-  const blocks = products.map(
-    (p) => `* ${p.name} — *${formatPrice(p.discountPrice ?? p.price)}*\n${productUrl(p.sku)}`
+  const lines = products.map(
+    (p) => `* ${p.name} — *${formatPrice(p.discountPrice ?? p.price)}*`
   );
-  return [header, "", blocks.join("\n\n")].join("\n");
+
+  const parts = [header, "", ...lines];
+
+  if (products.length > 0) {
+    parts.push(
+      "",
+      "Podés verlos todos acá:",
+      selectionUrl(products.map((p) => p.sku), baseUrl)
+    );
+  }
+
+  return parts.join("\n");
 }
 
 export function buildWhatsAppUrl(message: string): string {
