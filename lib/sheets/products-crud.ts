@@ -7,11 +7,12 @@ type ProductInput = {
   category: string;
   name: string;
   price: number;
+  imageUrl: string;
 };
 
 type Result = { success: boolean; error?: string };
 
-// Columns: A=SKU, B=Category, C=Name, D=Price, E=DiscountPrice(preserved), F=Offer(preserved)
+// Columns: A=SKU, B=Category, C=Name, D=Price, E=DiscountPrice(preserved), F=Offer(preserved), G=ImageUrl
 
 export async function createProduct(data: ProductInput): Promise<Result> {
   const sheets = getSheetsClient();
@@ -34,7 +35,7 @@ export async function createProduct(data: ProductInput): Promise<Result> {
       valueInputOption: "RAW",
       insertDataOption: "INSERT_ROWS",
       requestBody: {
-        values: [[data.sku.trim(), data.category.trim(), data.name.trim(), String(data.price), "", ""]],
+        values: [[data.sku.trim(), data.category.trim(), data.name.trim(), String(data.price), "", "", data.imageUrl.trim()]],
       },
     });
 
@@ -48,7 +49,7 @@ export async function createProduct(data: ProductInput): Promise<Result> {
 
 export async function updateProduct(
   sku: string,
-  data: { category: string; name: string; price: number }
+  data: { category: string; name: string; price: number; imageUrl: string }
 ): Promise<Result> {
   const sheets = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEETS_ID!;
@@ -56,7 +57,7 @@ export async function updateProduct(
   try {
     const current = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "A2:F",
+      range: "A2:G",
     });
 
     const rows = current.data.values ?? [];
@@ -71,10 +72,10 @@ export async function updateProduct(
 
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `A${sheetRow}:F${sheetRow}`,
+      range: `A${sheetRow}:G${sheetRow}`,
       valueInputOption: "RAW",
       requestBody: {
-        values: [[sku.trim(), data.category.trim(), data.name.trim(), String(data.price), preserved[0], preserved[1]]],
+        values: [[sku.trim(), data.category.trim(), data.name.trim(), String(data.price), preserved[0], preserved[1], data.imageUrl.trim()]],
       },
     });
 
@@ -93,7 +94,7 @@ export async function deleteProduct(sku: string): Promise<Result> {
   try {
     const current = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "A2:F",
+      range: "A2:G",
     });
 
     const rows = current.data.values ?? [];
@@ -103,7 +104,7 @@ export async function deleteProduct(sku: string): Promise<Result> {
       return { success: false, error: "Producto no encontrado." };
     }
 
-    await sheets.spreadsheets.values.clear({ spreadsheetId, range: "A2:F" });
+    await sheets.spreadsheets.values.clear({ spreadsheetId, range: "A2:G" });
 
     if (filtered.length > 0) {
       await sheets.spreadsheets.values.update({

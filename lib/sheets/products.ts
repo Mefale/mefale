@@ -2,13 +2,18 @@ import { unstable_cache } from "next/cache";
 import { getSheetsClient } from "./client";
 import type { Product } from "@/types/product";
 
-// Columns: A=SKU, B=Category, C=Name/Description, D=Price, E=DiscountPrice, F=Offer
-const RANGE = "A2:F";
+// Columns: A=SKU, B=Category, C=Name/Description, D=Price, E=DiscountPrice, F=Offer, G=ImageUrl
+const RANGE = "A2:G";
 
-function getImageUrl(sku: string): string {
-  const cloud = process.env.CLOUDINARY_CLOUD_NAME;
-  if (!cloud) return "";
-  return `https://res.cloudinary.com/${cloud}/image/upload/mefale/products/${sku}.jpg`;
+function parseImageUrl(raw: string | undefined): string | undefined {
+  const trimmed = raw?.trim();
+  if (!trimmed) return undefined;
+  try {
+    const u = new URL(trimmed);
+    return u.protocol === "http:" || u.protocol === "https:" ? trimmed : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function parsePrice(raw: string): number {
@@ -25,7 +30,7 @@ function parsePrice(raw: string): number {
 }
 
 function rowToProduct(row: string[]): Product | null {
-  const [sku, category, name, priceRaw, discountPriceCol, offerCol] = row;
+  const [sku, category, name, priceRaw, discountPriceCol, offerCol, imageUrlCol] = row;
   if (!sku?.trim() || !name?.trim()) return null;
 
   const price = parsePrice(priceRaw ?? "");
@@ -37,6 +42,8 @@ function rowToProduct(row: string[]): Product | null {
   const discountPrice =
     discountPriceRaw ? parsePrice(discountPriceRaw) : undefined;
 
+  const imageUrl = parseImageUrl(imageUrlCol);
+
   return {
     id: skuClean.toLowerCase(),
     sku: skuClean,
@@ -46,7 +53,7 @@ function rowToProduct(row: string[]): Product | null {
     discountPrice: discountPrice && discountPrice > 0 && discountPrice < price
       ? discountPrice
       : undefined,
-    images: [getImageUrl(skuClean)],
+    images: imageUrl ? [imageUrl] : [],
     category: category?.trim() ?? "Uncategorized",
     brand: "",
     stock: 1,

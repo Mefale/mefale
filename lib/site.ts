@@ -5,7 +5,7 @@
  * la URL correcta. El fallback es el dominio actual de Vercel: si algún día se
  * suma un dominio propio, basta con setear la variable de entorno.
  */
-const raw = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mefale.vercel.app";
+const raw = process.env.NEXT_PUBLIC_SITE_URL ?? "https://graser.vercel.app";
 
 /** URL base sin barra final. */
 export const SITE_URL = raw.replace(/\/$/, "");

@@ -9,7 +9,7 @@ import {
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, Check, Search, X } from "lucide-react";
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, Check, Search, X, ImageIcon, ImageOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -25,12 +25,19 @@ type FormData = {
   category: string;
   name: string;
   price: string;
+  imageUrl: string;
 };
 
-const EMPTY_FORM: FormData = { sku: "", category: "", name: "", price: "" };
+const EMPTY_FORM: FormData = { sku: "", category: "", name: "", price: "", imageUrl: "" };
 
 function formFromProduct(p: Product): FormData {
-  return { sku: p.sku, category: p.category, name: p.name, price: String(p.price) };
+  return {
+    sku: p.sku,
+    category: p.category,
+    name: p.name,
+    price: String(p.price),
+    imageUrl: p.images[0] ?? "",
+  };
 }
 
 function Field({
@@ -252,12 +259,14 @@ export default function ProductsClient({ products }: { products: Product[] }) {
           category: form.category.trim(),
           name: form.name.trim(),
           price,
+          imageUrl: form.imageUrl.trim(),
         });
       } else if (modal.mode === "edit") {
         result = await updateProductAction(modal.product.sku, {
           category: form.category.trim(),
           name: form.name.trim(),
           price,
+          imageUrl: form.imageUrl.trim(),
         });
       } else {
         return;
@@ -320,6 +329,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left px-4 py-3 font-medium text-gray-600 whitespace-nowrap">SKU</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Foto</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Categoría</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Nombre</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600 whitespace-nowrap">Precio</th>
@@ -330,7 +340,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
             <tbody className="divide-y divide-gray-100">
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400 text-sm">
+                  <td colSpan={7} className="px-4 py-10 text-center text-gray-400 text-sm">
                     {search ? "Sin resultados para esa búsqueda." : "No hay productos cargados."}
                   </td>
                 </tr>
@@ -338,6 +348,17 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                 paginated.map((product) => (
                   <tr key={product.sku} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-mono text-xs text-gray-500 whitespace-nowrap">{product.sku}</td>
+                    <td className="px-4 py-3 text-center whitespace-nowrap">
+                      {product.images.length > 0 ? (
+                        <span title="Con foto">
+                          <ImageIcon className="w-4 h-4 text-emerald-600 inline-block" />
+                        </span>
+                      ) : (
+                        <span title="Sin foto">
+                          <ImageOff className="w-4 h-4 text-gray-300 inline-block" />
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{product.category}</td>
                     <td className="px-4 py-3 text-gray-900">{product.name}</td>
                     <td className="px-4 py-3 text-right text-gray-900 whitespace-nowrap font-medium">
@@ -468,6 +489,26 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   placeholder="Ej: 1500"
                 />
+              </Field>
+
+              <Field label="Imagen (URL)" id="imageUrl">
+                <Input
+                  id="imageUrl"
+                  value={form.imageUrl}
+                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                  placeholder="Pegar link de imagen (ej: Google Imágenes)"
+                />
+                {form.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- preview cliente antes de subir a Cloudinary, no un asset final
+                  <img
+                    src={form.imageUrl}
+                    alt=""
+                    className="mt-2 h-20 w-20 object-cover rounded-md border border-gray-200"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                )}
               </Field>
 
               {formError && (

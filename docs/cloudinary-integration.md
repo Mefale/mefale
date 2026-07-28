@@ -76,3 +76,19 @@ Cleanup de imágenes huérfanas: cron o tarea manual. No se implementa en MVP.
 - Tipos: `image/jpeg`, `image/png`, `image/webp`.
 - Tamaño máximo: 5 MB por archivo.
 - Validar en cliente antes de pedir la firma.
+
+## Flujo de importación por URL (admin)
+
+Distinto del flujo de arriba (que sube un archivo elegido en el dispositivo). Este flujo permite pegar un link externo (ej. Google Imágenes) y que el servidor lo suba a Cloudinary.
+
+```
+lib/cloudinary/
+├── client.ts             # SDK server-side (compartido con el flujo firmado)
+└── upload-from-url.ts    # uploadImageFromUrl(sourceUrl, sku)
+```
+
+- Ocurre **enteramente server-side**, dentro de `createProductAction`/`updateProductAction` (`app/admin/products/actions.ts`), usando `CLOUDINARY_API_SECRET` — nunca se expone al cliente.
+- Usa `cloudinary.uploader.upload(url, { folder: "mefale/products", public_id: sku, overwrite: true, resource_type: "image" })`; Cloudinary descarga la URL remota y la valida como imagen (rechaza contenido que no lo sea).
+- Si falla (link roto, requiere auth, no es imagen), la Server Action retorna error y **no se escribe nada en Sheets** — todo o nada.
+- En edición, si el campo de imagen no cambió respecto al valor guardado, no se vuelve a subir (evita gasto de cuota/red).
+- Una sola imagen por producto por ahora (columna `G` en la hoja de productos).
