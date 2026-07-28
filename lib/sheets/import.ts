@@ -30,14 +30,14 @@ export async function importProductsToSheet(
   const sheets = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEETS_ID!;
 
-  // Read current data to preserve columns E (DiscountPrice) and F (Offer),
-  // and to know qué SKU ya existen.
+  // Read current data to preserve columns E (DiscountPrice), F (Offer) and
+  // G (ImageUrl), and to know qué SKU ya existen.
   const current = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: "A2:F",
+    range: "A2:G",
   });
 
-  // sku -> fila completa existente [A..F]
+  // sku -> fila completa existente [A..G]
   const existing = new Map<string, string[]>();
   for (const row of current.data.values ?? []) {
     const sku = row[0]?.trim();
@@ -48,10 +48,10 @@ export async function importProductsToSheet(
   const created = rows.filter((r) => !existing.has(r.sku)).length;
   const updated = rows.filter((r) => existing.has(r.sku)).length;
 
-  // Filas del Excel: A-D del archivo, E-F preservadas de la hoja.
+  // Filas del Excel: A-D del archivo, E-G preservadas de la hoja.
   const importedRows = rows.map((row) => {
     const prev = existing.get(row.sku);
-    return [row.sku, row.category, row.description, row.price, prev?.[4] ?? "", prev?.[5] ?? ""];
+    return [row.sku, row.category, row.description, row.price, prev?.[4] ?? "", prev?.[5] ?? "", prev?.[6] ?? ""];
   });
 
   let finalRows: string[][];
@@ -68,6 +68,7 @@ export async function importProductsToSheet(
         row[3] ?? "",
         row[4] ?? "",
         row[5] ?? "",
+        row[6] ?? "",
       ]);
     finalRows = [...importedRows, ...keptRows];
   } else {
@@ -76,7 +77,7 @@ export async function importProductsToSheet(
   }
 
   // Clear existing data rows and rewrite
-  await sheets.spreadsheets.values.clear({ spreadsheetId, range: "A2:F" });
+  await sheets.spreadsheets.values.clear({ spreadsheetId, range: "A2:G" });
 
   if (finalRows.length > 0) {
     await sheets.spreadsheets.values.update({

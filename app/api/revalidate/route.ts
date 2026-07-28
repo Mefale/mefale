@@ -1,5 +1,7 @@
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag as _revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+
+const revalidateTag = _revalidateTag as (tag: string) => void;
 
 export async function POST(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get("secret");
