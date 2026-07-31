@@ -3,7 +3,7 @@
 // uploaded (via scripts/upload-images.mjs) but never registered in the Sheet.
 // Usage: node scripts/backfill-image-urls.mjs [--dry-run]
 import { v2 as cloudinary } from "cloudinary";
-import { google } from "googleapis";
+import { auth, sheets } from "@googleapis/sheets";
 import { config } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -22,14 +22,14 @@ cloudinary.config({
 });
 
 function getSheetsClient() {
-  const auth = new google.auth.GoogleAuth({
+  const authClient = new auth.GoogleAuth({
     credentials: {
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     },
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
-  return google.sheets({ version: "v4", auth });
+  return sheets({ version: "v4", auth: authClient });
 }
 
 async function fetchAllCloudinaryUrls() {
