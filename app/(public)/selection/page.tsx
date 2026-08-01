@@ -117,7 +117,7 @@ export default async function SelectionPage({ searchParams }: Props) {
           </h1>
           <p className="mt-1.5 text-sm text-[#64748B]">
             {products.length} {products.length === 1 ? "producto" : "productos"} ·
-            Agregá los que te interesen y consultanos por WhatsApp.
+            Elegí la cantidad de los que te interesen y envianos la consulta por WhatsApp.
           </p>
         </div>
 
