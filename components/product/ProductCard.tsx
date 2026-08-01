@@ -5,6 +5,7 @@ import { useState } from "react";
 import { m } from "framer-motion";
 import { Zap, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { QuantityStepper } from "./QuantityStepper";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/format-price";
 import { discountPercent } from "@/utils/discount-percent";
@@ -14,9 +15,20 @@ type Props = {
   product: Product;
   index?: number;
   onSelect?: (product: Product) => void;
+  /** Modo selección: reemplaza el control de carrito por un selector de cantidad local. */
+  selectable?: boolean;
+  quantity?: number;
+  onQuantityChange?: (product: Product, quantity: number) => void;
 };
 
-export function ProductCard({ product, index = 0, onSelect }: Props) {
+export function ProductCard({
+  product,
+  index = 0,
+  onSelect,
+  selectable = false,
+  quantity = 0,
+  onQuantityChange,
+}: Props) {
   const mainImage = product.images[0];
   const [imgError, setImgError] = useState(false);
   const pct = discountPercent(product);
@@ -38,7 +50,8 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
           "shadow-[var(--shadow-card)]",
           "hover:border-[#1A56DB]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
           "transition-all duration-300",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A56DB] focus-visible:ring-offset-2"
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A56DB] focus-visible:ring-offset-2",
+          selectable && quantity > 0 && "border-[#1A56DB] ring-2 ring-[#1A56DB]/25"
         )}
       >
         {/* Image */}
@@ -124,7 +137,15 @@ export function ProductCard({ product, index = 0, onSelect }: Props) {
             )}
           </div>
 
-          <AddToCartButton product={product} className="mt-1.5" />
+          {selectable ? (
+            <QuantityStepper
+              quantity={quantity}
+              onChange={(q) => onQuantityChange?.(product, q)}
+              className="mt-1.5"
+            />
+          ) : (
+            <AddToCartButton product={product} className="mt-1.5" />
+          )}
         </div>
       </div>
     </m.div>
