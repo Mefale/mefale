@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { m } from "framer-motion";
 import { Container } from "@/components/layout/Container";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { ProductModal } from "@/components/product/ProductModal";
+import { useScrollHoverSuppress } from "@/hooks/use-scroll-hover-suppress";
 import { formatPrice } from "@/utils/format-price";
 import { discountPercent } from "@/utils/discount-percent";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,8 @@ interface Props {
 export function OffersSection({ products }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [page, setPage] = useState(0);
+  const mobileScrollRef = useScrollHoverSuppress<HTMLDivElement>("self");
+  const desktopScrollRef = useScrollHoverSuppress<HTMLDivElement>("window");
 
   const totalPages = Math.ceil(products.length / PAGE_SIZE);
   const pageItems = products.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -99,7 +102,10 @@ export function OffersSection({ products }: Props) {
           </div>
 
           {/* Mobile: horizontal scroll */}
-          <div className="relative flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 sm:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            ref={mobileScrollRef}
+            className="relative flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 sm:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {products.map((product, index) => (
               <OfferCard
                 key={product.id}
@@ -111,7 +117,10 @@ export function OffersSection({ products }: Props) {
           </div>
 
           {/* Desktop: paginated flex centered */}
-          <div className="relative hidden sm:flex sm:flex-wrap sm:justify-center gap-4">
+          <div
+            ref={desktopScrollRef}
+            className="relative hidden sm:flex sm:flex-wrap sm:justify-center gap-4"
+          >
             {pageItems.map((product, index) => (
               <OfferCard
                 key={product.id}
@@ -134,7 +143,7 @@ export function OffersSection({ products }: Props) {
   );
 }
 
-function OfferCard({
+const OfferCard = memo(function OfferCard({
   product,
   index,
   onSelect,
@@ -151,7 +160,7 @@ function OfferCard({
     <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05, ease: "easeOut" }}
+      transition={{ duration: 0.3, delay: Math.min(index, 10) * 0.05, ease: "easeOut" }}
       className="snap-start flex-shrink-0 w-44 sm:w-52"
     >
       <div
@@ -162,7 +171,7 @@ function OfferCard({
         className={cn(
           "group relative flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-white cursor-pointer",
           "shadow-[0_4px_12px_-2px_rgba(0,0,0,0.25)]",
-          "transition-all duration-300",
+          "transition-[transform,box-shadow,border-color] duration-300",
           "hover:border-[#1A56DB]/60 hover:shadow-[0_12px_28px_-8px_rgba(26,86,219,0.35)] hover:-translate-y-1"
         )}
       >
@@ -235,4 +244,4 @@ function OfferCard({
       </div>
     </m.div>
   );
-}
+});

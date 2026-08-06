@@ -1,5 +1,6 @@
 import { Package } from "lucide-react";
 import { ProductCard } from "./ProductCard";
+import { useScrollHoverSuppress } from "@/hooks/use-scroll-hover-suppress";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -18,6 +19,8 @@ export function ProductGrid({
   quantities,
   onQuantityChange,
 }: Props) {
+  const gridRef = useScrollHoverSuppress<HTMLDivElement>("window");
+
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC]">
@@ -33,7 +36,10 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+    <div
+      ref={gridRef}
+      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4"
+    >
       {products.map((product, i) => (
         <ProductCard
           key={product.id}

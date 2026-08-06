@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { m } from "framer-motion";
 import { Zap, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
@@ -21,7 +21,7 @@ type Props = {
   onQuantityChange?: (product: Product, quantity: number) => void;
 };
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCard({
   product,
   index = 0,
   onSelect,
@@ -37,7 +37,9 @@ export function ProductCard({
     <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.04, ease: "easeOut" }}
+      // El delay se limita a los primeros ~10 items: con grillas grandes (40+)
+      // un stagger sin tope encadena demasiadas animaciones concurrentes.
+      transition={{ duration: 0.3, delay: Math.min(index, 10) * 0.04, ease: "easeOut" }}
       className="h-full"
     >
       <div
@@ -49,7 +51,7 @@ export function ProductCard({
           "group flex h-full flex-col rounded-xl border border-[#E2E8F0] bg-white overflow-hidden cursor-pointer",
           "shadow-[var(--shadow-card)]",
           "hover:border-[#1A56DB]/40 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5",
-          "transition-all duration-300",
+          "transition-[transform,box-shadow,border-color] duration-300",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A56DB] focus-visible:ring-offset-2",
           selectable && quantity > 0 && "border-[#1A56DB] ring-2 ring-[#1A56DB]/25"
         )}
@@ -150,4 +152,4 @@ export function ProductCard({
       </div>
     </m.div>
   );
-}
+});

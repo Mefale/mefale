@@ -98,23 +98,18 @@ export async function updateOrder(
   const sheets = getSheetsClient();
   const spreadsheetId = process.env.GOOGLE_SHEETS_ID!;
 
-  // Buscar la fila por UUID en columna I
-  const colRes = await sheets.spreadsheets.values.get({
+  // Una sola lectura de todo el rango, en vez de buscar la fila por columna I
+  // y después leer la fila completa por separado.
+  const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: "Orders!I2:I",
+    range: "Orders!A2:I",
   });
-  const idRows = (colRes.data.values ?? []) as string[][];
-  const relIdx = idRows.findIndex((r) => r[0] === id);
+  const rows = (res.data.values ?? []) as string[][];
+  const relIdx = rows.findIndex((r) => r[8] === id);
   if (relIdx === -1) return { success: false, error: "Pedido no encontrado." };
 
   const rowNumber = relIdx + 2; // 1-based, con header en fila 1
-
-  // Leer la fila completa para hacer merge con el patch
-  const rowRes = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: `Orders!A${rowNumber}:I${rowNumber}`,
-  });
-  const existing = (rowRes.data.values?.[0] ?? []) as string[];
+  const existing = rows[relIdx];
 
   const current = rowToOrder(existing, rowNumber);
   if (!current) return { success: false, error: "No se pudo leer el pedido." };

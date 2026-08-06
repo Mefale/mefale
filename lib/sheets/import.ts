@@ -1,3 +1,5 @@
+import { revalidateTag as _revalidateTag } from "next/cache";
+const revalidateTag = _revalidateTag as (tag: string) => void;
 import { getSheetsClient } from "./client";
 
 export interface ImportRow {
@@ -88,5 +90,6 @@ export async function importProductsToSheet(
     });
   }
 
+  revalidateTag("products");
   return { total: rows.length, updated, created, removed };
 }

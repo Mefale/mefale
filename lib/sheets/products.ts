@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { getSheetsClient } from "./client";
 import type { Product } from "@/types/product";
@@ -95,21 +96,27 @@ async function fetchSheetRows(): Promise<string[][]> {
   throw new Error("No se pudieron obtener los productos de Google Sheets");
 }
 
-export const getProducts = unstable_cache(
-  async (): Promise<Product[]> => {
-    const rows = await fetchSheetRows();
-    const seen = new Set<string>();
-    return rows
-      .map(rowToProduct)
-      .filter((p): p is Product => {
-        if (p === null) return false;
-        if (seen.has(p.id)) return false;
-        seen.add(p.id);
-        return true;
-      });
-  },
-  ["products"],
-  { revalidate: 3600, tags: ["products"] }
+// cache() dedupea llamadas concurrentes dentro del mismo request (p.ej. getProducts()
+// y getCategories() en el mismo Promise.all, o generateMetadata + página en /products/[sku]).
+// unstable_cache por sí solo NO deduplica llamadas concurrentes en frío, solo evita
+// llamadas repetidas una vez que ya hay un valor cacheado entre requests.
+export const getProducts = cache(
+  unstable_cache(
+    async (): Promise<Product[]> => {
+      const rows = await fetchSheetRows();
+      const seen = new Set<string>();
+      return rows
+        .map(rowToProduct)
+        .filter((p): p is Product => {
+          if (p === null) return false;
+          if (seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+    },
+    ["products"],
+    { revalidate: 3600, tags: ["products"] }
+  )
 );
 
 // Busca un producto por SKU (case-insensitive). Deriva de getProducts (cacheado),

@@ -7,7 +7,7 @@ import { Menu, X, ShoppingCart } from "lucide-react";
 import { AnimatePresence, m } from "framer-motion";
 import { Container } from "./Container";
 import { cn } from "@/lib/utils";
-import { useCart, useCartHydrated } from "@/hooks/use-cart";
+import { useCartActions, useCartItemCount, useCartHydrated } from "@/hooks/use-cart";
 
 const navLinks = [
   { href: "/products", label: "Catálogo" },
@@ -16,9 +16,10 @@ const navLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { openDrawer, itemCount } = useCart();
+  const { openDrawer } = useCartActions();
+  const itemCount = useCartItemCount();
   const hydrated = useCartHydrated();
-  const count = hydrated ? itemCount() : 0;
+  const count = hydrated ? itemCount : 0;
 
   useEffect(() => {
     let ticking = false;

@@ -1,3 +1,5 @@
+import { revalidateTag as _revalidateTag } from "next/cache";
+const revalidateTag = _revalidateTag as (tag: string) => void;
 import { getSheetsClient } from "./client";
 
 export async function updateProductOffer(
@@ -43,5 +45,6 @@ export async function updateProductOffer(
     return { success: false, error: "Error al guardar en Google Sheets." };
   }
 
+  revalidateTag("products");
   return { success: true };
 }
