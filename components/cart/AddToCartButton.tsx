@@ -3,7 +3,7 @@
 import { Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useCart, useCartHydrated } from "@/hooks/use-cart";
+import { useCartActions, useCartItemQuantity, useCartHydrated } from "@/hooks/use-cart";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -12,11 +12,9 @@ type Props = {
 };
 
 export function AddToCartButton({ product, className }: Props) {
-  const { add, remove, setQuantity, items } = useCart();
+  const { add, remove, setQuantity } = useCartActions();
+  const qty = useCartItemQuantity(product.id);
   const hydrated = useCartHydrated();
-
-  const inCart = items.find((i) => i.id === product.id);
-  const qty = inCart?.quantity ?? 0;
 
   function handleDecrease(e: React.MouseEvent) {
     e.preventDefault();
