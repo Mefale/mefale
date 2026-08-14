@@ -194,7 +194,7 @@ function CategorySelect({
             />
           </div>
 
-          <ul className="max-h-52 overflow-y-auto py-1">
+          <ul className="max-h-80 overflow-y-auto py-1">
             {filtered.map((cat) => (
               <li key={cat}>
                 <button
@@ -337,7 +337,7 @@ function BrandSelect({
             />
           </div>
 
-          <ul className="max-h-52 overflow-y-auto py-1">
+          <ul className="max-h-80 overflow-y-auto py-1">
             {!trimmedQuery && (
               <li>
                 <button
