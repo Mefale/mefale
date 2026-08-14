@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useTransition, useRef, useEffect } from "react";
+import { useState, useMemo, useTransition, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import type { Product } from "@/types/product";
 import {
   createProductAction,
@@ -63,6 +64,35 @@ function Field({
   );
 }
 
+/**
+ * Posición (fixed, en coordenadas de viewport) del panel flotante de un
+ * combobox, calculada a partir del trigger. Usado junto con un portal para
+ * que el desplegable no quede recortado por el `overflow-y-auto` del modal
+ * que lo contiene.
+ */
+function usePopoverPosition(open: boolean, triggerRef: React.RefObject<HTMLElement | null>) {
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  const update = useCallback(() => {
+    const rect = triggerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setCoords({ top: rect.bottom + 6, left: rect.left, width: rect.width });
+  }, [triggerRef]);
+
+  useEffect(() => {
+    if (!open) return;
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [open, update]);
+
+  return coords;
+}
+
 function CategorySelect({
   id,
   value,
@@ -77,7 +107,10 @@ function CategorySelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const coords = usePopoverPosition(open, triggerRef);
 
   const filtered = query.trim()
     ? categories.filter((c) => c.toLowerCase().includes(query.toLowerCase().trim()))
@@ -101,7 +134,12 @@ function CategorySelect({
   useEffect(() => {
     if (!open) return;
     function onOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        !popoverRef.current?.contains(target)
+      ) {
         setOpen(false);
         setQuery("");
       }
@@ -123,6 +161,7 @@ function CategorySelect({
   return (
     <div ref={containerRef} className="relative">
       <button
+        ref={triggerRef}
         id={id}
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -138,8 +177,12 @@ function CategorySelect({
         />
       </button>
 
-      {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-full z-20 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden">
+      {open && coords && createPortal(
+        <div
+          ref={popoverRef}
+          style={{ position: "fixed", top: coords.top, left: coords.left, width: coords.width }}
+          className="z-50 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden"
+        >
           <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100">
             <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <input
@@ -151,7 +194,7 @@ function CategorySelect({
             />
           </div>
 
-          <ul className="max-h-52 overflow-y-auto py-1">
+          <ul className="max-h-80 overflow-y-auto py-1">
             {filtered.map((cat) => (
               <li key={cat}>
                 <button
@@ -186,7 +229,8 @@ function CategorySelect({
               </li>
             )}
           </ul>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -206,7 +250,10 @@ function BrandSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const coords = usePopoverPosition(open, triggerRef);
 
   const filtered = query.trim()
     ? brands.filter((b) => b.toLowerCase().includes(query.toLowerCase().trim()))
@@ -230,7 +277,12 @@ function BrandSelect({
   useEffect(() => {
     if (!open) return;
     function onOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        !popoverRef.current?.contains(target)
+      ) {
         setOpen(false);
         setQuery("");
       }
@@ -252,6 +304,7 @@ function BrandSelect({
   return (
     <div ref={containerRef} className="relative">
       <button
+        ref={triggerRef}
         id={id}
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -267,8 +320,12 @@ function BrandSelect({
         />
       </button>
 
-      {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-full z-20 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden">
+      {open && coords && createPortal(
+        <div
+          ref={popoverRef}
+          style={{ position: "fixed", top: coords.top, left: coords.left, width: coords.width }}
+          className="z-50 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden"
+        >
           <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100">
             <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <input
@@ -280,7 +337,7 @@ function BrandSelect({
             />
           </div>
 
-          <ul className="max-h-52 overflow-y-auto py-1">
+          <ul className="max-h-80 overflow-y-auto py-1">
             {!trimmedQuery && (
               <li>
                 <button
@@ -330,7 +387,8 @@ function BrandSelect({
               </li>
             )}
           </ul>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
