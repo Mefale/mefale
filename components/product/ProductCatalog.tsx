@@ -116,8 +116,8 @@ export function ProductCatalog({
       {/* Ancla de scroll para el cambio de página */}
       <div ref={topAnchorRef} aria-hidden className="h-0" />
 
-      {/* Toolbar: categoría + búsqueda */}
-      <div className="py-3 mb-4 border-b border-[#E2E8F0]">
+      {/* Toolbar: categoría + marca + búsqueda + orden */}
+      <div className="mb-5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-2.5 shadow-[var(--shadow-card)]">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="sm:w-56 lg:w-64 shrink-0">
             <CategoryCombobox
