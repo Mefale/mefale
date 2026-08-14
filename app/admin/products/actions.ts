@@ -13,6 +13,7 @@ const ProductSchema = z.object({
   name:     z.string().min(1, "Nombre requerido"),
   price:    z.number({ error: "Precio inválido" }).positive("El precio debe ser mayor a 0"),
   imageUrl: z.string().trim().default(""),
+  brand:    z.string().trim().default(""),
 });
 
 const UpdateSchema = ProductSchema.omit({ sku: true });
@@ -25,7 +26,7 @@ async function requireSession(): Promise<boolean> {
 }
 
 export async function createProductAction(
-  data: { sku: string; category: string; name: string; price: number; imageUrl: string }
+  data: { sku: string; category: string; name: string; price: number; imageUrl: string; brand: string }
 ): Promise<Result> {
   if (!(await requireSession())) return { success: false, error: "No autorizado." };
 
@@ -46,7 +47,7 @@ export async function createProductAction(
 
 export async function updateProductAction(
   sku: string,
-  data: { category: string; name: string; price: number; imageUrl: string }
+  data: { category: string; name: string; price: number; imageUrl: string; brand: string }
 ): Promise<Result> {
   if (!(await requireSession())) return { success: false, error: "No autorizado." };
 

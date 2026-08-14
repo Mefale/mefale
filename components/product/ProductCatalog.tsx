@@ -10,6 +10,7 @@ import {
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, X, ArrowDownUp, ChevronDown } from "lucide-react";
 import { CategoryCombobox } from "./CategoryCombobox";
+import { BrandCombobox } from "./BrandCombobox";
 import { ProductGrid } from "./ProductGrid";
 import { ProductModal } from "./ProductModal";
 import { Pagination } from "@/components/common/Pagination";
@@ -24,6 +25,8 @@ type Props = {
   query: string;
   category?: string;
   categories: string[];
+  brand?: string;
+  brands: string[];
   sort?: string;
 };
 
@@ -37,6 +40,8 @@ export function ProductCatalog({
   query,
   category,
   categories,
+  brand,
+  brands,
   sort,
 }: Props) {
   const router = useRouter();
@@ -55,12 +60,16 @@ export function ProductCatalog({
   }, [query]);
 
   const pushParams = useCallback(
-    (next: { q?: string; page?: number; category?: string | null; sort?: string }) => {
+    (next: { q?: string; page?: number; category?: string | null; brand?: string | null; sort?: string }) => {
       const params = new URLSearchParams(searchParams.toString());
 
       if (next.category !== undefined) {
         if (next.category) params.set("category", next.category);
         else params.delete("category");
+      }
+      if (next.brand !== undefined) {
+        if (next.brand) params.set("brand", next.brand);
+        else params.delete("brand");
       }
       if (next.q !== undefined) {
         if (next.q) params.set("q", next.q);
@@ -110,11 +119,18 @@ export function ProductCatalog({
       {/* Toolbar: categoría + búsqueda */}
       <div className="py-3 mb-4 border-b border-[#E2E8F0]">
         <div className="flex flex-col sm:flex-row gap-2">
-          <div className="sm:w-64 lg:w-72 shrink-0">
+          <div className="sm:w-56 lg:w-64 shrink-0">
             <CategoryCombobox
               categories={categories}
               selected={category}
               onChange={(cat) => pushParams({ category: cat, page: 1 })}
+            />
+          </div>
+          <div className="sm:w-48 lg:w-56 shrink-0">
+            <BrandCombobox
+              brands={brands}
+              selected={brand}
+              onChange={(b) => pushParams({ brand: b, page: 1 })}
             />
           </div>
           <div className="relative flex-1">

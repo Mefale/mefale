@@ -6,6 +6,7 @@ export type CatalogSort = "price-asc" | "price-desc";
 
 export type CatalogQuery = {
   category?: string;
+  brand?: string;
   q?: string;
   page: number;
   sort?: CatalogSort;
@@ -29,9 +30,10 @@ export type CatalogResult = {
  */
 export function queryProducts(
   products: Product[],
-  { category, q, page, sort }: CatalogQuery
+  { category, brand, q, page, sort }: CatalogQuery
 ): CatalogResult {
   let list = category ? products.filter((p) => p.category === category) : products;
+  if (brand) list = list.filter((p) => p.brand === brand);
 
   const query = q?.toLowerCase().trim();
   if (query) {
