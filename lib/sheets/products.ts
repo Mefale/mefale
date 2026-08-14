@@ -17,7 +17,7 @@ function parseImageUrl(raw: string | undefined): string | undefined {
   }
 }
 
-function parsePrice(raw: string): number {
+export function parsePrice(raw: string): number {
   // Sheets puede devolver "1200.50" (formato US numérico) o "$1.200,50" (texto AR).
   // Si hay coma, asumimos formato AR: punto = miles, coma = decimal.
   // Si no hay coma, asumimos que el punto es decimal (caso por defecto de Sheets).

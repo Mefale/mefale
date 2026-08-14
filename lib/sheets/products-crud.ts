@@ -1,6 +1,7 @@
 import { revalidateTag as _revalidateTag } from "next/cache";
 const revalidateTag = _revalidateTag as (tag: string) => void;
 import { getSheetsClient } from "./client";
+import { parsePrice } from "./products";
 
 type ProductInput = {
   sku: string;
@@ -12,6 +13,7 @@ type ProductInput = {
 };
 
 type Result = { success: boolean; error?: string };
+type BulkPriceResult = { success: boolean; updated: number; error?: string };
 
 // Columns: A=SKU, B=Category, C=Name, D=Price, E=DiscountPrice(preserved), F=Offer(preserved), G=ImageUrl, H=Brand
 
@@ -121,5 +123,67 @@ export async function deleteProduct(sku: string): Promise<Result> {
   } catch (err) {
     console.error("[deleteProduct]", err);
     return { success: false, error: "Error al eliminar el producto." };
+  }
+}
+
+/**
+ * Ajusta el precio (y, proporcionalmente, el precio de oferta si tiene) de
+ * todos los productos de una marca. `percent` positivo sube, negativo baja
+ * (ej: 5 = +5%, -10 = -10%). Escritura puntual por celda (D/E), no reescribe
+ * la fila completa.
+ */
+export async function bulkAdjustPriceByBrand(
+  brand: string,
+  percent: number
+): Promise<BulkPriceResult> {
+  const sheets = getSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEETS_ID!;
+  const factor = 1 + percent / 100;
+
+  try {
+    const current = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: "A2:H",
+    });
+    const rows = current.data.values ?? [];
+
+    const data: { range: string; values: string[][] }[] = [];
+
+    rows.forEach((row, i) => {
+      const rowBrand = row[7]?.trim() ?? "";
+      if (rowBrand !== brand) return;
+
+      const sheetRow = i + 2;
+
+      const price = parsePrice(row[3] ?? "");
+      if (price > 0) {
+        const newPrice = Math.round(price * factor * 100) / 100;
+        data.push({ range: `D${sheetRow}`, values: [[String(newPrice)]] });
+      }
+
+      const discountRaw = row[4]?.trim();
+      if (discountRaw) {
+        const discountPrice = parsePrice(discountRaw);
+        if (discountPrice > 0) {
+          const newDiscountPrice = Math.round(discountPrice * factor * 100) / 100;
+          data.push({ range: `E${sheetRow}`, values: [[String(newDiscountPrice)]] });
+        }
+      }
+    });
+
+    if (data.length === 0) {
+      return { success: true, updated: 0 };
+    }
+
+    await sheets.spreadsheets.values.batchUpdate({
+      spreadsheetId,
+      requestBody: { valueInputOption: "RAW", data },
+    });
+
+    revalidateTag("products");
+    return { success: true, updated: data.filter((d) => d.range.startsWith("D")).length };
+  } catch (err) {
+    console.error("[bulkAdjustPriceByBrand]", err);
+    return { success: false, updated: 0, error: "Error al ajustar los precios." };
   }
 }

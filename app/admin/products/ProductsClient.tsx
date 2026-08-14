@@ -6,12 +6,14 @@ import {
   createProductAction,
   updateProductAction,
   deleteProductAction,
+  bulkAdjustPriceAction,
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, Check, Search, X, ImageIcon, ImageOff } from "lucide-react";
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, Check, Search, X, ImageIcon, ImageOff, Percent } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { formatPrice } from "@/utils/format-price";
 
 const PAGE_SIZE = 50;
 
@@ -346,6 +348,12 @@ export default function ProductsClient({ products }: { products: Product[] }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkBrand, setBulkBrand] = useState("");
+  const [bulkPercent, setBulkPercent] = useState("");
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkConfirming, setBulkConfirming] = useState(false);
+
   const categories = useMemo(
     () =>
       Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort(
@@ -373,6 +381,16 @@ export default function ProductsClient({ products }: { products: Product[] }) {
     );
   }, [search, products]);
 
+  // Vista previa del ajuste masivo: se calcula en el cliente (ya tenemos
+  // `products` completo acá), sin pegarle al servidor hasta confirmar.
+  const bulkPercentNum = parseFloat(bulkPercent);
+  const bulkAffected = useMemo(
+    () => (bulkBrand ? products.filter((p) => p.brand === bulkBrand) : []),
+    [products, bulkBrand]
+  );
+  const bulkPreviewValid = !!bulkBrand && !isNaN(bulkPercentNum) && bulkPercentNum !== 0;
+  const bulkFactor = 1 + (isNaN(bulkPercentNum) ? 0 : bulkPercentNum) / 100;
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -390,6 +408,37 @@ export default function ProductsClient({ products }: { products: Product[] }) {
 
   function closeModal() {
     setModal({ mode: "closed" });
+  }
+
+  function openBulk() {
+    setBulkBrand("");
+    setBulkPercent("");
+    setBulkError(null);
+    setBulkConfirming(false);
+    setBulkOpen(true);
+  }
+
+  function closeBulk() {
+    setBulkOpen(false);
+  }
+
+  function handleBulkApply() {
+    if (!bulkPreviewValid) return;
+    setBulkError(null);
+    startTransition(async () => {
+      const result = await bulkAdjustPriceAction(bulkBrand, bulkPercentNum);
+      if (result.success) {
+        toast.success(
+          `Precios actualizados`,
+          { description: `${result.updated ?? bulkAffected.length} productos de ${bulkBrand}` }
+        );
+        setBulkOpen(false);
+        router.refresh();
+      } else {
+        setBulkError(result.error ?? "Error inesperado.");
+        setBulkConfirming(false);
+      }
+    });
   }
 
   function handleSearchChange(value: string) {
@@ -464,10 +513,16 @@ export default function ProductsClient({ products }: { products: Product[] }) {
           <h1 className="text-xl font-bold text-[#0F172A]">Productos</h1>
           <p className="text-sm text-[#64748B] mt-0.5">{products.length} productos en total</p>
         </div>
-        <Button onClick={openCreate} size="sm" className="gap-1.5">
-          <Plus className="w-4 h-4" />
-          Nuevo producto
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={openBulk} size="sm" variant="outline" className="gap-1.5">
+            <Percent className="w-4 h-4" />
+            Ajustar precios por marca
+          </Button>
+          <Button onClick={openCreate} size="sm" className="gap-1.5">
+            <Plus className="w-4 h-4" />
+            Nuevo producto
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -727,6 +782,119 @@ export default function ProductsClient({ products }: { products: Product[] }) {
               >
                 {isPending ? "Eliminando…" : "Sí, eliminar"}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk price adjust Modal */}
+      {bulkOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={closeBulk} />
+          <div className="relative z-10 bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6 space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">Ajustar precios por marca</h2>
+              <button
+                onClick={closeBulk}
+                className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <Field label="Marca" id="bulk-brand">
+                <BrandSelect
+                  id="bulk-brand"
+                  value={bulkBrand}
+                  brands={brands}
+                  onChange={(brand) => {
+                    setBulkBrand(brand);
+                    setBulkConfirming(false);
+                  }}
+                />
+              </Field>
+
+              <Field label="Ajuste (%)" id="bulk-percent">
+                <Input
+                  id="bulk-percent"
+                  type="number"
+                  step="0.1"
+                  value={bulkPercent}
+                  onChange={(e) => {
+                    setBulkPercent(e.target.value);
+                    setBulkConfirming(false);
+                  }}
+                  placeholder="Ej: 5 (sube 5%) o -10 (baja 10%)"
+                />
+              </Field>
+
+              {bulkError && (
+                <p className="text-sm text-red-600">{bulkError}</p>
+              )}
+
+              {bulkBrand && (
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2">
+                  <p className="text-sm text-gray-700">
+                    <strong>{bulkAffected.length}</strong>{" "}
+                    {bulkAffected.length === 1 ? "producto" : "productos"} de{" "}
+                    <strong>{bulkBrand}</strong>
+                  </p>
+
+                  {bulkPreviewValid && bulkAffected.length > 0 && (
+                    <>
+                      <div className="max-h-40 overflow-y-auto space-y-1">
+                        {bulkAffected.slice(0, 5).map((p) => (
+                          <div key={p.sku} className="flex items-center justify-between gap-2 text-xs">
+                            <span className="truncate text-gray-600">{p.name}</span>
+                            <span className="shrink-0 font-medium text-gray-900 whitespace-nowrap">
+                              {formatPrice(p.price)} → {formatPrice(Math.round(p.price * bulkFactor * 100) / 100)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {bulkAffected.length > 5 && (
+                        <p className="text-xs text-gray-400">… y {bulkAffected.length - 5} más.</p>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Los productos en oferta también ajustan su precio de descuento en la misma proporción.
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
+              {bulkConfirming ? (
+                <>
+                  <span className="text-sm text-red-600 flex items-center mr-auto">
+                    ¿Confirmás? No se puede deshacer.
+                  </span>
+                  <Button variant="outline" onClick={() => setBulkConfirming(false)} disabled={isPending}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleBulkApply}
+                    disabled={isPending}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {isPending ? "Aplicando…" : "Sí, aplicar"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={closeBulk} disabled={isPending}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={() => setBulkConfirming(true)}
+                    disabled={!bulkPreviewValid || bulkAffected.length === 0 || isPending}
+                  >
+                    Vista previa: aplicar cambios
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
