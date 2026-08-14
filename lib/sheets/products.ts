@@ -3,8 +3,8 @@ import { unstable_cache } from "next/cache";
 import { getSheetsClient } from "./client";
 import type { Product } from "@/types/product";
 
-// Columns: A=SKU, B=Category, C=Name/Description, D=Price, E=DiscountPrice, F=Offer, G=ImageUrl
-const RANGE = "A2:G";
+// Columns: A=SKU, B=Category, C=Name/Description, D=Price, E=DiscountPrice, F=Offer, G=ImageUrl, H=Brand
+const RANGE = "A2:H";
 
 function parseImageUrl(raw: string | undefined): string | undefined {
   const trimmed = raw?.trim();
@@ -17,7 +17,7 @@ function parseImageUrl(raw: string | undefined): string | undefined {
   }
 }
 
-function parsePrice(raw: string): number {
+export function parsePrice(raw: string): number {
   // Sheets puede devolver "1200.50" (formato US numérico) o "$1.200,50" (texto AR).
   // Si hay coma, asumimos formato AR: punto = miles, coma = decimal.
   // Si no hay coma, asumimos que el punto es decimal (caso por defecto de Sheets).
@@ -31,7 +31,7 @@ function parsePrice(raw: string): number {
 }
 
 function rowToProduct(row: string[]): Product | null {
-  const [sku, category, name, priceRaw, discountPriceCol, offerCol, imageUrlCol] = row;
+  const [sku, category, name, priceRaw, discountPriceCol, offerCol, imageUrlCol, brandCol] = row;
   if (!sku?.trim() || !name?.trim()) return null;
 
   const price = parsePrice(priceRaw ?? "");
@@ -56,7 +56,7 @@ function rowToProduct(row: string[]): Product | null {
       : undefined,
     images: imageUrl ? [imageUrl] : [],
     category: category?.trim() ?? "Uncategorized",
-    brand: "",
+    brand: brandCol?.trim() ?? "",
     stock: 1,
     tags: [],
     featured: false,
@@ -140,4 +140,18 @@ export async function getCategories(): Promise<string[]> {
       seen.add(c);
       return true;
     });
+}
+
+// NO envolver en unstable_cache: mismo motivo que getCategories arriba.
+export async function getBrands(): Promise<string[]> {
+  const products = await getProducts();
+  const seen = new Set<string>();
+  return products
+    .map((p) => p.brand)
+    .filter((b) => {
+      if (!b || seen.has(b)) return false;
+      seen.add(b);
+      return true;
+    })
+    .sort((a, b) => a.localeCompare(b, "es"));
 }
