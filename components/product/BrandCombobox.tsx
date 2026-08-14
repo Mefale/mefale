@@ -73,7 +73,7 @@ export function BrandCombobox({ brands, selected, onChange }: Props) {
             : "border-[#E2E8F0] bg-white text-[#475569] shadow-sm hover:text-[#0F172A] hover:border-[#CBD5E1]"
         )}
       >
-        <span className={cn("truncate", selected ? "text-[#0F172A]" : "")}>
+        <span className={cn("truncate", selected && "uppercase text-[#0F172A]")}>
           {label}
         </span>
         <ChevronDown
@@ -129,7 +129,7 @@ export function BrandCombobox({ brands, selected, onChange }: Props) {
                   <button
                     onClick={() => navigate(brand)}
                     className={cn(
-                      "w-full flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium text-left transition-colors hover:bg-[#F8FAFC]",
+                      "w-full flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium text-left uppercase transition-colors hover:bg-[#F8FAFC]",
                       selected === brand ? "text-[#1A56DB]" : "text-[#475569] hover:text-[#0F172A]"
                     )}
                   >
