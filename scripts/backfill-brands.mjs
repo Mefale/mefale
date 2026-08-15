@@ -22,7 +22,26 @@ const BRAND_PATTERNS = [
   { brand: "Re-Flex", regex: /\bre[\s-]?flex\b/i },
   { brand: "Sica", regex: /\bsica\b/i },
   { brand: "Dayton", regex: /\bdayton\b/i },
+  { brand: "MDG", regex: /\bmdg\b/i },
+  { brand: "Richi", regex: /\brichi\b/i },
+  { brand: "Taad", regex: /\btaad\b/i },
+  { brand: "Stucchi", regex: /\bstucchi\b/i },
+  { brand: "Macroled", regex: /\bmacroled\b/i },
+  { brand: "Zurich", regex: /\bzurich\b/i },
+  { brand: "Huferjo", regex: /\bhuferjo\b/i },
+  { brand: "Schneider", regex: /\bschneider\b/i },
+  { brand: "ABB", regex: /\babb\b/i },
+  { brand: "Genrod", regex: /\bgenrod\b/i },
+  { brand: "Elenec", regex: /\belenec\b/i },
+  { brand: "Anthay", regex: /\banthay\b/i },
+  { brand: "Rodaro", regex: /\brodaro\b/i },
 ];
+
+// SKUs revisados a mano donde el match automático es ambiguo/incorrecto:
+// se dejan sin marca en vez de asignar cualquiera de las que matchean.
+const FORCE_BLANK_SKUS = new Set([
+  "LLSI0090037", // "AUTOMATICO DE PASILLO ELENEC T/SICA BLANCO" — matchea Sica y Elenec, se deja en blanco
+]);
 
 function matchBrand(name) {
   const matches = BRAND_PATTERNS.filter((p) => p.regex.test(name));
@@ -68,9 +87,13 @@ async function main() {
     if (!sku || !name) return;
 
     const matches = matchBrand(name);
-    const newBrand = matches.length > 0 ? matches[0].brand : "";
+    const newBrand = FORCE_BLANK_SKUS.has(sku)
+      ? ""
+      : matches.length > 0
+      ? matches[0].brand
+      : "";
 
-    if (matches.length > 1) {
+    if (matches.length > 1 && !FORCE_BLANK_SKUS.has(sku)) {
       ambiguous.push({ sku, name, matches: matches.map((m) => m.brand) });
     }
 
