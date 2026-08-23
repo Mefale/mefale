@@ -59,9 +59,10 @@ async function CatalogSection({
         <div className={showOffers ? "pt-10" : ""}>
           {/* Header */}
           <div className="mb-8">
+            {/* El total se muestra en la toolbar, junto a los filtros que lo producen. */}
             <SectionHeader
               title={category ?? "Catálogo"}
-              subtitle={`${result.total} productos disponibles`}
+              subtitle="Filtrá por categoría o marca, o buscá por nombre y código."
             />
           </div>
 
@@ -91,17 +92,24 @@ export default async function ProductsPage({ searchParams }: Props) {
   return (
     <div className="pt-24 pb-16 overflow-x-hidden">
       <Suspense
-        key={`${category ?? "all"}-${brand ?? "all"}`}
         fallback={
           <Container>
             <div className="mb-8 flex flex-col gap-2">
               <div className="h-8 w-48 rounded bg-[#F1F5F9] animate-pulse" />
               <div className="h-4 w-40 rounded bg-[#F1F5F9] animate-pulse" />
             </div>
-            <div className="mb-8 flex flex-col sm:flex-row gap-2">
-              <div className="h-11 sm:w-56 lg:w-64 rounded-lg bg-[#F1F5F9] animate-pulse" />
-              <div className="h-11 sm:w-48 lg:w-56 rounded-lg bg-[#F1F5F9] animate-pulse" />
-              <div className="h-11 flex-1 rounded-lg bg-[#F1F5F9] animate-pulse" />
+            <div className="mb-6 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 sm:p-4">
+              <div className="h-12 w-full rounded-xl bg-[#F1F5F9] animate-pulse" />
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-1">
+                  <div className="h-11 rounded-lg bg-[#F1F5F9] animate-pulse sm:w-56 lg:w-64" />
+                  <div className="h-11 rounded-lg bg-[#F1F5F9] animate-pulse sm:w-48 lg:w-56" />
+                </div>
+                <div className="h-11 rounded-lg bg-[#F1F5F9] animate-pulse sm:w-48" />
+              </div>
+              <div className="mt-3 flex border-t border-[#E2E8F0] pt-3">
+                <div className="ml-auto h-5 w-28 rounded bg-[#F1F5F9] animate-pulse" />
+              </div>
             </div>
             <ProductGridSkeleton />
           </Container>
